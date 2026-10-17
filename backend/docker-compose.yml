@@ -1,0 +1,43 @@
+# ============================================================
+# NexCV Backend (Express) — Database server only
+# ============================================================
+# This compose file starts ONLY the PostgreSQL database server.
+# The backend itself is NOT containerised — run it on the host with:
+#
+#   npm run dev
+#
+# Usage:
+#   docker compose up -d        # start the database
+#   docker compose down         # stop it (data volume is kept)
+#   docker compose down -v      # stop it and DELETE the data
+#
+# Connection string (see .env → DATABASE_URL):
+#   postgresql://nexcvd:nexcvd_secret@localhost:5442/nexcvd?schema=public
+# ============================================================
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: nexcvd-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: nexcvd
+      POSTGRES_PASSWORD: nexcvd_secret
+      POSTGRES_DB: nexcvd
+      # Deterministic collation so Prisma migrations behave the same everywhere
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    ports:
+      # host:container — 5442 on the host to avoid clashing with other
+      # PostgreSQL instances that may already use 5432.
+      - "5442:5432"
+    volumes:
+      - nexcvd_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nexcvd -d nexcvd"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  nexcvd_pgdata:
+    name: nexcvd_pgdata

@@ -1,0 +1,255 @@
+// ============================================================
+// NexCV — Prisma schema (PostgreSQL)
+// ============================================================
+// Replaces the previous Mongoose models (src/models/*.model.js).
+// Table names are kept identical to the old MongoDB collections so the
+// API contract does not change:
+//
+//   Mongoose model   →  table            (old MongoDB collection)
+//   User                 users
+//   Job                  jobs
+//   Application          applications
+//   CvScore              cvscores
+//   Notification         notifications
+//   Settings             settings
+//
+// DESIGN NOTE — no foreign-key relations on purpose:
+//   MongoDB had no referential integrity. References were plain ObjectIds and
+//   could dangle (e.g. after deleting a user, their jobs/applications remained
+//   and `populate()` simply resolved them to `null`). The seed endpoint even
+//   inserts jobs with placeholder employerIds that refer to no user.
+//
+//   Modelling those refs as real FKs would (a) break the seed data, (b) make
+//   deletes cascade or fail, and (c) change what the API returns. So every ref
+//   is stored as a plain `String` column and `populate()` is emulated in
+//   src/utils/populate.js — byte-identical to Mongoose behaviour.
+//
+// IDs: MongoDB ObjectIds are replaced by cuid() strings. They stay opaque
+// strings on the wire and every response still exposes `_id`
+// (see src/utils/serialize.js), so the frontend needs no changes.
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────────────────────
+// User  (collection: users)
+// ─────────────────────────────────────────────────────────────
+model User {
+  id       String @id @default(cuid())
+  email    String @unique
+  password String
+  name     String
+
+  role   String @default("candidate")
+  status String @default("active")
+
+  // General
+  avatar   String?
+  phone    String?
+  location String?
+
+  // Candidate
+  title  String?
+  bio    String?
+  skills String[] @default([])
+
+  // Saved jobs (candidate bookmarks) — plain id list, like the old
+  // `[{ type: ObjectId, ref: 'Job' }]` array stored inside the user document.
+  savedJobs String[] @default([])
+
+  // Employer
+  companyName    String?
+  companyWebsite String?
+  industry       String?
+
+  // Password reset
+  resetPasswordToken   String?
+  resetPasswordExpires DateTime?
+
+  // Verification
+  emailVerified     Boolean  @default(true)
+  verified          Boolean  @default(false)
+  businessDocuments String[] @default([])
+
+  // CV Builder saved data
+  cvBuilderData Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([role])
+  @@index([status])
+  @@index([createdAt])
+  @@map("users")
+}
+
+// ─────────────────────────────────────────────────────────────
+// Job  (collection: jobs)
+// ─────────────────────────────────────────────────────────────
+model Job {
+  id String @id @default(cuid())
+
+  title       String
+  employerId  String // ref: users.id (no FK — see note above)
+  companyName String
+  companyLogo String?
+
+  location  String
+  salary    String?
+  salaryMin Float?
+  salaryMax Float?
+
+  category String
+  type     String
+  level    String
+
+  tags         String[] @default([])
+  description  String
+  requirements String[] @default([])
+  benefits     String[] @default([])
+
+  deadline DateTime?
+
+  views    Int     @default(0)
+  applied  Int     @default(0)
+  featured Boolean @default(false)
+  status   String  @default("active")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([category])
+  @@index([employerId])
+  @@index([createdAt])
+  @@index([featured])
+  @@map("jobs")
+}
+
+// ─────────────────────────────────────────────────────────────
+// Application  (collection: applications)
+// ─────────────────────────────────────────────────────────────
+model Application {
+  id String @id @default(cuid())
+
+  jobId       String // ref: jobs.id
+  candidateId String // ref: users.id
+
+  coverLetter String?
+  cvId        String? // id of the CV used — in practice a file name / cvUrl
+
+  status String @default("pending")
+
+  aiScoreId String? // ref: cvscores.id
+
+  isArchivedByEmployer Boolean @default(false)
+
+  pdfBuffer Bytes?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([jobId])
+  @@index([candidateId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("applications")
+}
+
+// ─────────────────────────────────────────────────────────────
+// CvScore  (collection: cvscores)
+// ─────────────────────────────────────────────────────────────
+model CvScore {
+  id String @id @default(cuid())
+
+  userId String? // ref: users.id
+  jobId  String? // ref: jobs.id
+
+  cvUrl String?
+
+  score Float?
+
+  analysis Json?
+
+  type String? // candidate_self_score | employer_match | general_analysis
+
+  pdfBuffer Bytes?
+
+  // Compatibility fields
+  fileName                   String?
+  targetPosition             String?
+  overall                    Float?
+  grade                      String?
+  gradeLabel                 String?
+  level_assessment           String?
+  extracted_experience_years Float?
+  project_quality            String?
+
+  recommended_roles String[] @default([])
+
+  skill_analysis Json?
+  categories     Json?
+
+  strengths    String[] @default([])
+  improvements String[] @default([])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([jobId])
+  @@index([score])
+  @@index([createdAt])
+  @@map("cvscores")
+}
+
+// ─────────────────────────────────────────────────────────────
+// Notification  (collection: notifications)
+// ─────────────────────────────────────────────────────────────
+model Notification {
+  id String @id @default(cuid())
+
+  userId String? // ref: users.id
+
+  title   String
+  message String
+  type    String  @default("info")
+  read    Boolean @default(false)
+
+  // NOTE: plain String in the old schema too (not an ObjectId ref)
+  jobId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([read])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+// ─────────────────────────────────────────────────────────────
+// Settings  (collection: settings) — single global document
+// ─────────────────────────────────────────────────────────────
+model Settings {
+  id  String @id @default(cuid())
+  key String @unique @default("global")
+
+  site     Json?
+  ai       Json?
+  jobs     Json?
+  users    Json?
+  security Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("settings")
+}
