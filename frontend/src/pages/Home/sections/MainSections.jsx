@@ -80,13 +80,13 @@ export function HeroSection() {
           <div className="flex-1 flex items-center gap-2 px-3 py-1.5">
             <Search className="h-4 w-4 text-[#94A3B8] shrink-0" />
             <Input value={keyword} onChange={e => setKeyword(e.target.value)} placeholder="Tên công việc, kỹ năng, công ty..."
-              className="border-0 shadow-none focus-visible:ring-0 p-0 text-sm text-[#0F172A] placeholder:text-[#94A3B8]" />
+              className="border-0 shadow-none focus-visible:ring-0 p-0 text-sm text-[#0F172A] placeholder:text-[#94A3B8] bg-transparent focus:bg-transparent rounded-none h-auto" />
           </div>
           <Separator orientation="vertical" className="hidden sm:block h-8 self-center mx-1" />
           <div className="flex items-center gap-2 px-3 py-1.5">
             <MapPin className="h-4 w-4 text-[#94A3B8] shrink-0" />
             <Input value={location} onChange={e => setLocation(e.target.value)} placeholder="Địa điểm"
-              className="border-0 shadow-none focus-visible:ring-0 p-0 text-sm text-[#0F172A] placeholder:text-[#94A3B8] w-full sm:w-36" />
+              className="border-0 shadow-none focus-visible:ring-0 p-0 text-sm text-[#0F172A] placeholder:text-[#94A3B8] w-full sm:w-36 bg-transparent focus:bg-transparent rounded-none h-auto" />
           </div>
           <Button type="submit" size="lg" className="rounded-xl sm:ml-1 bg-[#1549B8] hover:bg-[#1240A0] text-white font-bold shrink-0 sm:w-auto">Tìm kiếm</Button>
         </form>
