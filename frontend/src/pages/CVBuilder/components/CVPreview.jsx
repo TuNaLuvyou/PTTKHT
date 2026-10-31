@@ -1,5 +1,14 @@
 import { Mail, Phone, MapPin, Link2, Globe } from 'lucide-react'
 
+function SectionHeading({ children }) {
+  return (
+    <div className="flex items-center gap-2 mb-2">
+      <span className="w-1 h-3.5 rounded-full bg-[#1549B8] shrink-0" />
+      <h2 className="text-xs font-black uppercase tracking-widest text-[#1549B8]">{children}</h2>
+    </div>
+  )
+}
+
 export function CVPreview({ cv }) {
   const { personal, experience, education, skills, languages, certifications } = cv
 
@@ -46,9 +55,7 @@ export function CVPreview({ cv }) {
         {/* Summary */}
         {personal.summary && (
           <div>
-            <h2 className="text-xs font-black uppercase tracking-widest text-[#1549B8] border-b-2 border-[#1549B8] pb-1 mb-2">
-              Giới thiệu bản thân
-            </h2>
+            <SectionHeading>Giới thiệu</SectionHeading>
             <p className="text-xs leading-relaxed text-[#475569]">{personal.summary}</p>
           </div>
         )}
@@ -56,9 +63,7 @@ export function CVPreview({ cv }) {
         {/* Experience */}
         {experience.length > 0 && (
           <div>
-            <h2 className="text-xs font-black uppercase tracking-widest text-[#1549B8] border-b-2 border-[#1549B8] pb-1 mb-3">
-              Kinh nghiệm làm việc
-            </h2>
+            <SectionHeading>Kinh nghiệm</SectionHeading>
             <div className="space-y-4">
               {experience.map(exp => (
                 <div key={exp.id}>
@@ -88,9 +93,7 @@ export function CVPreview({ cv }) {
         {/* Education */}
         {education.length > 0 && (
           <div>
-            <h2 className="text-xs font-black uppercase tracking-widest text-[#1549B8] border-b-2 border-[#1549B8] pb-1 mb-3">
-              Học vấn
-            </h2>
+            <SectionHeading>Học vấn</SectionHeading>
             <div className="space-y-2.5">
               {education.map(edu => (
                 <div key={edu.id} className="flex justify-between items-start">
@@ -108,9 +111,7 @@ export function CVPreview({ cv }) {
         {/* Skills */}
         {skills.length > 0 && (
           <div>
-            <h2 className="text-xs font-black uppercase tracking-widest text-[#1549B8] border-b-2 border-[#1549B8] pb-1 mb-3">
-              Kỹ năng
-            </h2>
+            <SectionHeading>Kỹ năng</SectionHeading>
             <div className="space-y-1.5">
               {skills.map(s => (
                 <div key={s.id} className="flex gap-2 text-xs">
@@ -125,9 +126,7 @@ export function CVPreview({ cv }) {
         {/* Languages */}
         {languages.length > 0 && (
           <div>
-            <h2 className="text-xs font-black uppercase tracking-widest text-[#1549B8] border-b-2 border-[#1549B8] pb-1 mb-2">
-              Ngôn ngữ
-            </h2>
+            <SectionHeading>Ngôn ngữ</SectionHeading>
             <div className="flex flex-wrap gap-3">
               {languages.map(l => (
                 <span key={l.id} className="text-xs">
@@ -142,9 +141,7 @@ export function CVPreview({ cv }) {
         {/* Certifications */}
         {certifications.length > 0 && (
           <div>
-            <h2 className="text-xs font-black uppercase tracking-widest text-[#1549B8] border-b-2 border-[#1549B8] pb-1 mb-2">
-              Chứng chỉ
-            </h2>
+            <SectionHeading>Chứng chỉ</SectionHeading>
             <div className="space-y-1">
               {certifications.map(c => (
                 <div key={c.id} className="flex justify-between text-xs">

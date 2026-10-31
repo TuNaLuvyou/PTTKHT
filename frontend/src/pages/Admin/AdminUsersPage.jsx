@@ -59,7 +59,8 @@ export default function AdminUsersPage() {
       // getUser may return data directly (mock) or wrapped in axios response
       const freshData = res?.data || res
       setSelectedUser({ ...user, ...freshData })
-    } catch {
+    } catch (err) {
+      console.debug('[AdminUsersPage.handleViewUser] API lỗi, dùng dữ liệu cache từ danh sách:', err)
       // Fallback to cached data from list if API fails
       setSelectedUser(user)
     } finally {

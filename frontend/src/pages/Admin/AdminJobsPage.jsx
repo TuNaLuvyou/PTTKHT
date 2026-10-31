@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom'
 import { adminService } from '../../services/adminService'
 import { connectSocket, onJobViewsUpdated, onJobApplicationsUpdated } from '../../services/socket'
 import {
-  Search, Building2, Star, CheckCircle2, PauseCircle, RefreshCw,
+  Search, Building2, CheckCircle2, PauseCircle, RefreshCw,
   Ban, Trash2, CircleAlert, CircleCheck, CircleX, ClipboardList,
-  DollarSign, BarChart3, FolderOpen, Briefcase, AlertTriangle, X
+  DollarSign, BarChart3, FolderOpen, Briefcase, AlertTriangle, X, Bookmark
 } from 'lucide-react'
-import EmptyState from '@/components/ui/EmptyState'
-import { SkeletonPage } from '@/components/ui/Skeleton'
+import EmptyState from '@/components/common/EmptyState'
+import { SkeletonPage } from '@/components/common/Skeleton'
 
 /* ── Configs ───────────────────────────────────────────────────────────────── */
 const STATUS_CONFIG = {
@@ -61,8 +61,8 @@ function AdminJobCard({ job, onStatusChange, onDelete, onToggleFeatured }) {
               {cfg.label}
             </span>
             {job.featured && (
-              <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200 inline-flex items-center gap-1">
-                <Star size={12} fill="#D97706" /> Nổi bật
+              <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-700 inline-flex items-center gap-1">
+                <Bookmark size={12} fill="#D97706" /> Nổi bật
               </span>
             )}
           </div>
@@ -141,7 +141,7 @@ function AdminJobCard({ job, onStatusChange, onDelete, onToggleFeatured }) {
                   </>
                 )}
                 <MenuBtn
-                  icon={job.featured ? <Star size={14} fill="#D97706" /> : <Star size={14} />}
+                  icon={job.featured ? <Bookmark size={14} fill="#D97706" /> : <Bookmark size={14} />}
                   label={job.featured ? 'Bỏ nổi bật' : 'Đánh dấu nổi bật'}
                   onClick={() => handleAction(onToggleFeatured, job.id, !job.featured)}
                 />

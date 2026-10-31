@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  Sparkles, FileText, BarChart3, Activity, CheckCircle2, AlertTriangle,
+  Bot, FileText, BarChart3, Activity, CheckCircle2, AlertTriangle,
   MessageSquare, Lightbulb, ChevronDown, ChevronUp, Trash2
 } from 'lucide-react'
-import ScoreBar from '@/components/ui/ScoreBar'
-import RadarChart from '@/components/ui/RadarChart'
+import ScoreBar from '@/components/scoring/ScoreBar'
+import RadarChart from '@/components/scoring/RadarChart'
 
 const STATUS_CONFIG = {
   pending: { label: 'Chờ xem', color: '#F59E0B', bg: '#FEF3C7', next: 'reviewing' },
@@ -20,7 +20,7 @@ const getCvUrl = (path) => {
   if (path.startsWith('http')) return path
   const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
   const host = baseUrl.replace(/\/api\/?$/, '')
-  const token = localStorage.getItem('nexcv_token')
+  const token = localStorage.getItem('nexcv_employer_token') || localStorage.getItem('nexcv_token')
   const separator = path.includes('?') ? '&' : '?'
   return `${host}${path}${token ? `${separator}token=${token}` : ''}`
 }
@@ -107,9 +107,10 @@ export default function ApplicantCard({ app, onStatusChange, onScore, isSelected
         {/* Actions */}
         <div className="flex gap-1.5 sm:gap-2 flex-wrap items-center w-full sm:w-auto sm:ml-auto">
           <button
-            onClick={onScore}              className="px-2.5 sm:px-3 py-1.75 rounded-lg border border-pink-200 bg-pink-50 text-pink-600 cursor-pointer text-[11px] sm:text-xs font-bold flex items-center gap-1 hover:bg-pink-100 transition-colors"
+            onClick={onScore}
+            className="px-2.5 sm:px-3 py-1.75 rounded-lg border border-purple-200 bg-purple-50 text-purple-600 cursor-pointer text-[11px] sm:text-xs font-bold flex items-center gap-1 hover:bg-purple-100 transition-colors"
           >
-            <Sparkles size={14} /> {app.ai_score ? 'Chấm lại' : 'Chấm điểm'}
+            <Bot size={14} /> {app.ai_score ? 'Chấm lại' : 'Chấm điểm'}
           </button>
 
           {cfg.next && (
@@ -187,7 +188,7 @@ export default function ApplicantCard({ app, onStatusChange, onScore, isSelected
               {/* AI Review */}
               <div>
                 <h4 className="text-sm font-bold text-[#0F172A] mb-2.5 flex items-center gap-1.5">
-                  <Sparkles size={16} /> Đánh giá góc nhìn tuyển dụng (AI):
+                  <Bot size={16} /> Đánh giá góc nhìn tuyển dụng (AI):
                 </h4>
                 {app.ai_score?.review ? (
                   <p className="text-sm text-amber-700 leading-relaxed m-0 p-[14px_16px] bg-amber-50 rounded-xl border border-amber-200 italic whitespace-pre-wrap">

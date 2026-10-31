@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Sparkles, Search, Inbox, Users, Trash2 } from 'lucide-react'
-import EmptyState from '@/components/ui/EmptyState'
-import { SkeletonPage } from '@/components/ui/Skeleton'
+import { Bot, Search, Inbox, Users, Trash2 } from 'lucide-react'
+import EmptyState from '@/components/common/EmptyState'
+import { SkeletonPage } from '@/components/common/Skeleton'
 import { employerService } from '../../services/employerService'
 import ApplicantCard from './components/ApplicantCard'
 import ScoringModal from './components/ScoringModal'
@@ -160,7 +160,7 @@ export default function EmployerApplicantsPage() {
           }}
           className="px-7 py-[14px] rounded-xl border-none text-white cursor-pointer text-[15px] font-extrabold uppercase tracking-wide flex items-center gap-2.5 transition-all duration-300 hover:-translate-y-0.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 shadow-lg shadow-purple-500/50"
         >
-          <Sparkles size={20} />
+          <Bot size={20} />
           <span>Chấm Điểm CV Bằng AI</span>
         </button>
       </div>

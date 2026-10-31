@@ -1,20 +1,19 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { adminService } from '../../services/adminService'
 import { 
   ArrowLeft, Building, MapPin, Briefcase, DollarSign, 
-  Clock, CheckCircle2, XCircle, AlertCircle, Calendar,
-  FileText, PlusCircle, Tag, Star
+  Clock, CheckCircle2, XCircle, Calendar,
+  FileText, PlusCircle, Tag
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import Skeleton from '@/components/ui/Skeleton'
+import Skeleton from '@/components/common/Skeleton'
 
 const STATUS_CONFIG = {
-  active:   { label: 'Đang tuyển', color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200' },
-  pending:  { label: 'Chờ duyệt',  color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200' },
-  reported: { label: 'Bị báo cáo', color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-200' },
-  closed:   { label: 'Đã đóng',    color: 'text-slate-600', bg: 'bg-slate-50', border: 'border-slate-200' },
+  active:   { label: 'Đang tuyển', color: 'text-emerald-700', bg: 'bg-emerald-50' },
+  pending:  { label: 'Chờ duyệt',  color: 'text-amber-700', bg: 'bg-amber-50' },
+  reported: { label: 'Bị báo cáo', color: 'text-red-700', bg: 'bg-red-50' },
+  closed:   { label: 'Đã đóng',    color: 'text-slate-600', bg: 'bg-slate-100' },
 }
 
 export default function AdminJobDetailsPage() {
@@ -24,18 +23,19 @@ export default function AdminJobDetailsPage() {
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState(false)
 
-  useEffect(() => {
-    const fetchJob = async () => {
-      try {
-        const res = await adminService.getJobs() // Mock getJobs returns all
-        const found = res.data.find(j => j.id == id)
-        if (found) setJob(found)
-      } finally {
-        setLoading(false)
-      }
+  const fetchJob = useCallback(async () => {
+    try {
+      const res = await adminService.getJobs()
+      const found = res.data.find(j => j.id == id)
+      if (found) setJob(found)
+    } finally {
+      setLoading(false)
     }
-    fetchJob()
   }, [id])
+
+  useEffect(() => {
+    fetchJob()
+  }, [fetchJob])
 
   const handleStatusChange = async (newStatus) => {
     setActionLoading(true)
@@ -94,13 +94,13 @@ export default function AdminJobDetailsPage() {
         <div className="bg-slate-900 p-8 text-white relative overflow-hidden">
             <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-4">
-                    <Badge className={`${cfg.bg} ${cfg.color} ${cfg.border} border px-3 py-1`}>
+                    <span className={`${cfg.bg} ${cfg.color} text-xs font-bold px-3 py-1 rounded-xl`}>
                         {cfg.label}
-                    </Badge>
+                    </span>
                     {job.featured && (
-                        <Badge className="bg-amber-100 text-amber-700 border border-amber-200 px-3 py-1">
-                            <Star size={14} fill="#D97706" className="mr-1" /> Nổi bật
-                        </Badge>
+                        <span className="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-xl">
+                            Nổi bật
+                        </span>
                     )}
                 </div>
                 <h1 className="text-3xl font-black mb-4 leading-tight">{job.title}</h1>
@@ -161,7 +161,7 @@ export default function AdminJobDetailsPage() {
                         </h3>
                         <div className="pl-7 flex flex-wrap gap-2">
                             {job.tags.map(tag => (
-                                <span key={tag} className="px-3 py-1 bg-blue-50 text-[#1549B8] border border-blue-100 rounded-lg text-[11px] font-bold uppercase tracking-wider">
+                                <span key={tag} className="px-3 py-1 bg-blue-50 text-[#1549B8] rounded-xl text-xs font-semibold">
                                     {tag}
                                 </span>
                             ))}

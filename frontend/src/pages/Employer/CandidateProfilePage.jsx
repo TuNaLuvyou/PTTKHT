@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { MapPin, Phone, Mail, Briefcase, Sparkles, ArrowLeft, FileText } from 'lucide-react'
-import { SkeletonPage } from '@/components/ui/Skeleton'
+import { MapPin, Phone, Mail, Briefcase, User, ArrowLeft, FileText } from 'lucide-react'
+import { SkeletonPage } from '@/components/common/Skeleton'
 import { employerService } from '@/services/employerService'
 
 export default function CandidateProfilePage() {
@@ -102,7 +102,7 @@ export default function CandidateProfilePage() {
         {seeker.bio && (
           <div className="mt-6">
             <h3 className="text-sm font-bold text-slate-900 mb-2 flex items-center gap-1.5">
-              <Sparkles size={14} /> Giới thiệu
+              <User size={14} /> Giới thiệu
             </h3>
             <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap bg-slate-50 rounded-xl p-4 border border-slate-100">
               {seeker.bio}

@@ -101,10 +101,10 @@ const styles = StyleSheet.create({
     fontWeight: 900,
     color: C.primary,
     textTransform: 'uppercase',
-    borderBottomWidth: 2,
-    borderBottomColor: C.primary,
-    borderBottomStyle: 'solid',
-    paddingBottom: 3,
+    borderLeftWidth: 3,
+    borderLeftColor: C.primary,
+    borderLeftStyle: 'solid',
+    paddingLeft: 6,
     marginBottom: 6,
     letterSpacing: 1,
   },
@@ -313,7 +313,7 @@ export function CVPDFDocument({ cv }) {
           {/* ─── Summary ─── */}
           {personal.summary && (
             <View style={styles.section}>
-              <Text style={styles.sectionHeading}>Giới thiệu bản thân</Text>
+              <Text style={styles.sectionHeading}>Giới thiệu</Text>
               <Text style={styles.sectionText}>{personal.summary}</Text>
             </View>
           )}
@@ -321,7 +321,7 @@ export function CVPDFDocument({ cv }) {
           {/* ─── Experience ─── */}
           {experience.length > 0 && (
             <View style={styles.section}>
-              <Text style={styles.sectionHeading}>Kinh nghiệm làm việc</Text>
+              <Text style={styles.sectionHeading}>Kinh nghiệm</Text>
               {experience.map(exp => (
                 <View key={exp.id} style={styles.expItem}>
                   <View style={styles.expHeader}>

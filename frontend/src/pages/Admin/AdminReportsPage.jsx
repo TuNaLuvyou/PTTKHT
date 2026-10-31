@@ -12,7 +12,7 @@ import {
   BarChart, Bar, PieChart, Cell, Pie, Legend
 } from 'recharts'
 import { Button } from '@/components/ui/button'
-import Skeleton from '@/components/ui/Skeleton'
+import Skeleton from '@/components/common/Skeleton'
 import {
   Select,
   SelectContent,

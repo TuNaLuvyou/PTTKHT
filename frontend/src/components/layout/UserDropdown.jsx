@@ -9,6 +9,7 @@ const getInitials = (name, fallback = "U") => {
     const parts = name.trim().split(/\s+/);
     return parts.slice(-2).map((w) => w[0]).join("").toUpperCase() || fallback;
   } catch {
+    // Defensive: tên bất thường → trả fallback, không ảnh hưởng UI
     return fallback;
   }
 };

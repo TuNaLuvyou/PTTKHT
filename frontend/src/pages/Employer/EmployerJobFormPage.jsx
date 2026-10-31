@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Edit3, FileText, Wrench, Save, Loader2, CheckCircle2, Rocket, XCircle, Plus, AlertCircle } from 'lucide-react'
+import { FileText, Wrench, Save, Loader2, CheckCircle2, Rocket, XCircle, Plus, AlertCircle, Building, Calendar, MapPin } from 'lucide-react'
 import { employerService } from '../../services/employerService'
 import { useAuth } from '../../context/AuthContext'
-import { SkeletonPage } from '@/components/ui/Skeleton'
+import Skeleton, { SkeletonCard } from '@/components/common/Skeleton'
 
 const SKILL_SUGGESTIONS = [
   'React', 'Vue', 'Angular', 'Next.js', 'TypeScript', 'JavaScript',
@@ -12,19 +12,25 @@ const SKILL_SUGGESTIONS = [
   'AWS', 'GCP', 'Figma', 'Photoshop', 'SQL', 'Git', 'CI/CD',
 ]
 
-function Field({ label, required, hint, children }) {
+function Field({ label, required, hint, error, className = "", children }) {
   return (
-    <div className="mb-5">
-      <label className="block text-sm font-semibold text-slate-900 mb-1.5">
-        {label} {required && <span className="text-red-500">*</span>}
-        {hint && <span className="text-xs text-slate-400 font-normal ml-1.5">{hint}</span>}
+    <div className={`space-y-1.5 ${className}`}>
+      <label className="block text-xs font-bold text-slate-800">
+        {label} {required && <span className="text-rose-500">*</span>}
+        {hint && <span className="text-[11px] text-slate-400 font-normal ml-1">({hint})</span>}
       </label>
       {children}
+      {error && (
+        <p className="text-[11px] text-rose-500 font-medium flex items-center gap-1 mt-1">
+          <AlertCircle size={12} />
+          {error}
+        </p>
+      )}
     </div>
   )
 }
 
-const inputStyle = "w-full px-3.5 py-2.5 border-2 border-slate-200 rounded-xl text-sm font-inherit text-slate-900 box-border outline-none transition-all bg-white focus:border-blue-500"
+const inputStyle = "w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-inherit text-slate-900 box-border outline-none transition-all bg-white focus:border-[#7C3AED] focus:ring-1 focus:ring-[#7C3AED]"
 
 export default function EmployerJobFormPage() {
   const { id } = useParams()
@@ -140,225 +146,297 @@ export default function EmployerJobFormPage() {
     }
   }
 
-  if (loading) return <div className="max-w-2xl mx-auto py-8"><SkeletonPage cards={3} /></div>
+  if (loading) return (
+    <div className="max-w-6xl mx-auto px-4 py-8 grid lg:grid-cols-12 gap-6">
+      <div className="lg:col-span-5 space-y-6">
+        <SkeletonCard lines={6} />
+        <SkeletonCard lines={3} />
+      </div>
+      <div className="lg:col-span-7 space-y-6">
+        <SkeletonCard lines={8} />
+      </div>
+    </div>
+  )
 
   return (
-    <div className="px-4 py-8 max-w-[760px] mx-auto">
-      {/* Header */}
-      <div className="mb-7">
-        <button onClick={() => navigate('/employer/jobs')}
-          className="bg-transparent border-none cursor-pointer text-slate-500 text-[13px] font-inherit font-semibold p-0 mb-3 flex items-center gap-1.5 hover:text-slate-900 transition-colors">
-          ← Quay lại danh sách
-        </button>
-        <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2">
-          {isEdit ? <><Edit3 className="h-5 w-5" /> Chỉnh sửa tin tuyển dụng</> : 'Đăng tin tuyển dụng mới'}
-        </h1>
-      </div>
+    <div className="px-4 py-8 max-w-6xl mx-auto font-sans">
+      {errorMsg && (
+        <div className="px-4 py-3 rounded-2xl mb-6 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-2">
+          <XCircle className="h-4 w-4 shrink-0" />
+          <span>{errorMsg}</span>
+        </div>
+      )}
 
-      <div className="bg-white rounded-2xl border-2 border-slate-200 p-5 mb-5">
-        <h2 className="text-[15px] font-extrabold text-slate-900 mb-5 pb-3 border-b-2 border-slate-100 flex items-center gap-1.5">
-          <FileText className="h-4 w-4" /> Thông tin cơ bản
-        </h2>
+      {/* 2-Column Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        
+        {/* Column 1 (Left, 5 cols): Position Settings & Skills */}
+        <div className="lg:col-span-5 flex flex-col space-y-6">
+          
+          {/* Card: Position Settings */}
+          <div className="bg-white rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-200/80 space-y-4">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-purple-50 text-[#7C3AED] flex items-center justify-center shrink-0">
+                <Building className="h-4 w-4" />
+              </div>
+              <h2 className="text-base font-bold text-slate-900">Thiết lập vị trí</h2>
+            </div>
 
-        {errorMsg && (
-          <div className="px-4 py-3 rounded-xl mb-5 bg-red-50 border-2 border-red-200 text-red-600 text-[13px] font-semibold flex items-center gap-1.5">
-            <XCircle className="h-4 w-4 shrink-0" />{errorMsg}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <Field label="Tên công ty" required error={errors.companyName}>
+                <input
+                  value={form.companyName}
+                  onChange={e => set('companyName', e.target.value)}
+                  placeholder="VD: NexCV Corp"
+                  className={`${inputStyle} ${errors.companyName ? '!border-rose-500' : ''}`}
+                />
+              </Field>
+
+              <Field label="Ngành nghề" required>
+                <select value={form.category} onChange={e => set('category', e.target.value)} className={inputStyle}>
+                  <option value="Công nghệ thông tin">Công nghệ thông tin</option>
+                  <option value="Dữ liệu & AI">Dữ liệu & AI</option>
+                  <option value="Thiết kế">Thiết kế</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Kinh doanh / Sales">Kinh doanh / Sales</option>
+                  <option value="Tài chính - Kế toán">Tài chính - Kế toán</option>
+                  <option value="Nhân sự">Nhân sự</option>
+                  <option value="Khác">Khác</option>
+                </select>
+              </Field>
+
+              <Field label="Hình thức" required>
+                <select value={form.job_type} onChange={e => set('job_type', e.target.value)} className={inputStyle}>
+                  <option value="full-time">Toàn thời gian</option>
+                  <option value="part-time">Bán thời gian</option>
+                  <option value="remote">Remote</option>
+                  <option value="internship">Thực tập</option>
+                </select>
+              </Field>
+
+              <Field label="Cấp độ" required>
+                <select value={form.level} onChange={e => set('level', e.target.value)} className={inputStyle}>
+                  <option value="intern">Intern</option>
+                  <option value="fresher">Fresher</option>
+                  <option value="junior">Junior</option>
+                  <option value="mid">Mid-level</option>
+                  <option value="senior">Senior</option>
+                </select>
+              </Field>
+            </div>
+
+            <Field label="Địa điểm làm việc" required error={errors.location}>
+              <div className="relative">
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <input
+                  value={form.location}
+                  onChange={e => set('location', e.target.value)}
+                  placeholder="VD: TP. Hồ Chí Minh, Hà Nội, Remote..."
+                  className={`${inputStyle} pl-9 ${errors.location ? '!border-rose-500' : ''}`}
+                />
+              </div>
+            </Field>
+
+            <div className="grid grid-cols-2 gap-3.5">
+              <Field label="Lương từ" hint="VNĐ">
+                <input
+                  type="number"
+                  min="0"
+                  value={form.salary_min}
+                  onChange={e => set('salary_min', e.target.value)}
+                  placeholder="Tối thiểu"
+                  className={inputStyle}
+                />
+              </Field>
+              <Field label="Lương đến" hint="VNĐ">
+                <input
+                  type="number"
+                  min="0"
+                  value={form.salary_max}
+                  onChange={e => set('salary_max', e.target.value)}
+                  placeholder="Tối đa"
+                  className={inputStyle}
+                />
+              </Field>
+            </div>
+
+            <Field label="Hạn nộp hồ sơ">
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                <input
+                  type="date"
+                  value={form.expired_at}
+                  onChange={e => set('expired_at', e.target.value)}
+                  className={`${inputStyle} pl-9`}
+                />
+              </div>
+            </Field>
           </div>
-        )}
 
-        <Field label="Tiêu đề vị trí" required>
-          <input value={form.title} onChange={e => set('title', e.target.value)}
-            placeholder="VD: Senior Frontend Developer (React)"
-            className={`${inputStyle} ${errors.title ? '!border-red-500' : ''}`}
-          />
-          {errors.title && <p className="text-xs text-red-500 mt-1 flex items-center gap-0.5"><AlertCircle size={11} />{errors.title}</p>}
-        </Field>
+          {/* Card: Skills */}
+          <div className="bg-white rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-200/80 space-y-4 flex-1 flex flex-col justify-between">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-purple-50 text-[#7C3AED] flex items-center justify-center shrink-0">
+                  <Wrench className="h-4 w-4" />
+                </div>
+                <h2 className="text-base font-bold text-slate-900">Kỹ năng yêu cầu</h2>
+              </div>
 
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4">
-          <Field label="Tên công ty" required>
-            <input value={form.companyName} onChange={e => set('companyName', e.target.value)}
-              placeholder="VD: VNG Corporation"
-              className={`${inputStyle} ${errors.companyName ? '!border-red-500' : ''}`}
-            />
-            {errors.companyName && <p className="text-xs text-red-500 mt-1 flex items-center gap-0.5"><AlertCircle size={11} />{errors.companyName}</p>}
-          </Field>
-          <Field label="Ngành nghề" required>
-            <select value={form.category} onChange={e => set('category', e.target.value)} className={inputStyle}>
-              <option value="Công nghệ thông tin">Công nghệ thông tin</option>
-              <option value="Dữ liệu & AI">Dữ liệu & AI</option>
-              <option value="Thiết kế">Thiết kế</option>
-              <option value="Marketing">Marketing</option>
-              <option value="Kinh doanh / Sales">Kinh doanh / Sales</option>
-              <option value="Tài chính - Kế toán">Tài chính - Kế toán</option>
-              <option value="Nhân sự">Nhân sự</option>
-              <option value="Sản xuất">Sản xuất</option>
-              <option value="Khác">Khác</option>
-            </select>
-          </Field>
-        </div>
+              {/* Selected Skills List */}
+              <div className="flex flex-wrap gap-1.5 min-h-[36px]">
+                {form.required_skills.map(skill => (
+                  <span
+                    key={skill}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-semibold bg-purple-50 text-[#7C3AED]"
+                  >
+                    {skill}
+                    <button
+                      type="button"
+                      onClick={() => removeSkill(skill)}
+                      className="hover:text-purple-900 text-sm leading-none cursor-pointer"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+                {form.required_skills.length === 0 && (
+                  <span className="text-xs text-slate-400 italic">Chưa chọn kỹ năng nào</span>
+                )}
+              </div>
 
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
-          <Field label="Hình thức làm việc" required>
-            <select value={form.job_type} onChange={e => set('job_type', e.target.value)} className={inputStyle}>
-              <option value="full-time">Toàn thời gian</option>
-              <option value="part-time">Bán thời gian</option>
-              <option value="remote">Remote</option>
-              <option value="internship">Thực tập</option>
-            </select>
-          </Field>
-          <Field label="Cấp độ" required>
-            <select value={form.level} onChange={e => set('level', e.target.value)} className={inputStyle}>
-              <option value="intern">Intern</option>
-              <option value="fresher">Fresher</option>
-              <option value="junior">Junior</option>
-              <option value="mid">Mid-level</option>
-              <option value="senior">Senior</option>
-            </select>
-          </Field>
-        </div>
+              {/* Skill Input */}
+              <div className="flex gap-2">
+                <input
+                  value={skillInput}
+                  onChange={e => setSkillInput(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      addSkill(skillInput)
+                    }
+                  }}
+                  placeholder="Nhập kỹ năng rồi bấm Enter..."
+                  className={`${inputStyle} flex-1`}
+                />
+                <button
+                  type="button"
+                  onClick={() => addSkill(skillInput)}
+                  disabled={!skillInput.trim()}
+                  className="px-4 py-2.5 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold text-xs flex items-center gap-1 transition-all disabled:opacity-50 cursor-pointer"
+                >
+                  <Plus className="h-3.5 w-3.5" /> Thêm
+                </button>
+              </div>
+            </div>
 
-        <Field label="Địa điểm làm việc" required>
-          <input value={form.location} onChange={e => set('location', e.target.value)}
-            placeholder="VD: TP. Hồ Chí Minh, Hà Nội, Remote..."
-            className={`${inputStyle} ${errors.location ? '!border-red-500' : ''}`}
-          />
-          {errors.location && <p className="text-xs text-red-500 mt-1 flex items-center gap-0.5"><AlertCircle size={11} />{errors.location}</p>}
-        </Field>
-
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
-          <Field label="Lương tối thiểu" hint="(VNĐ, để trống = thỏa thuận)">
-            <input type="number" min="0" value={form.salary_min} onChange={e => {
-              const v = e.target.value
-              if (v === '') return set('salary_min', '')
-              const n = Number(v)
-              if (!isNaN(n)) set('salary_min', Math.max(0, n).toString())
-            }}
-              placeholder="VD: 15000000"
-              className={`${inputStyle} ${errors.salary_min ? '!border-red-500' : ''}`}
-            />
-          </Field>
-          <Field label="Lương tối đa" hint="(VNĐ)">
-            <input type="number" min="0" value={form.salary_max} onChange={e => {
-              const v = e.target.value
-              if (v === '') return set('salary_max', '')
-              const n = Number(v)
-              if (!isNaN(n)) set('salary_max', Math.max(0, n).toString())
-            }}
-              placeholder="VD: 25000000"
-              className={inputStyle}
-            />
-          </Field>
-          {errors.salary_min && <p className="text-xs text-red-500 col-span-full -mt-3">{errors.salary_min}</p>}
-        </div>
-
-        <Field label="Hạn nộp hồ sơ">
-          <input type="date" value={form.expired_at} onChange={e => set('expired_at', e.target.value)}
-            min={new Date().toISOString().slice(0, 10)}
-            className={inputStyle}
-          />
-        </Field>
-      </div>
-
-      {/* Description & Details */}
-      <div className="bg-white rounded-2xl border-2 border-slate-200 p-5 mb-5">
-        <h2 className="text-[15px] font-extrabold text-slate-900 mb-5 pb-3 border-b-2 border-slate-100 flex items-center gap-1.5">
-          <FileText className="h-4 w-4" /> Chi tiết tin đăng
-        </h2>
-
-        <Field label="Mô tả công việc" required>
-          <textarea value={form.description} onChange={e => set('description', e.target.value)}
-            rows={6} placeholder="Nhập mô tả chung về công việc..."
-            className={`${inputStyle} resize-y min-h-[120px] ${errors.description ? '!border-red-500' : ''}`}
-          />
-          {errors.description && <p className="text-xs text-red-500 mt-1 flex items-center gap-0.5"><AlertCircle size={11} />{errors.description}</p>}
-        </Field>
-
-        <Field label="Yêu cầu ứng viên" hint="Kỹ năng, kinh nghiệm, bằng cấp...">
-          <textarea value={form.requirements} onChange={e => set('requirements', e.target.value)}
-            rows={5} placeholder="Nhập các yêu cầu đối với ứng viên..."
-            className={`${inputStyle} resize-y min-h-[100px]`}
-          />
-        </Field>
-
-        <Field label="Quyền lợi" hint="Lương thưởng, bảo hiểm, chế độ đãi ngộ...">
-          <textarea value={form.benefits} onChange={e => set('benefits', e.target.value)}
-            rows={5} placeholder="Nhập các quyền lợi ứng viên sẽ được hưởng..."
-            className={`${inputStyle} resize-y min-h-[100px]`}
-          />
-        </Field>
-      </div>
-
-      {/* Skills */}
-      <div className="bg-white rounded-2xl border-2 border-slate-200 p-5 mb-6">
-        <h2 className="text-[15px] font-extrabold text-slate-900 mb-2 pb-3 border-b-2 border-slate-100 flex items-center gap-1.5">
-          <Wrench className="h-4 w-4" /> Kỹ năng yêu cầu <span className="text-xs text-slate-400 font-normal">(AI dùng để so khớp CV)</span>
-        </h2>
-
-        {/* Selected skills */}
-        <div className="flex flex-wrap gap-2 mb-3 min-h-[36px]">
-          {form.required_skills.map(skill => (
-            <span key={skill} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[13px] font-semibold bg-blue-50 text-blue-600 border-2 border-blue-200">
-              {skill}
-              <button onClick={() => removeSkill(skill)} className="bg-transparent border-none cursor-pointer text-blue-300 hover:text-blue-500 text-base p-0 leading-none">×</button>
-            </span>
-          ))}
-          {form.required_skills.length === 0 && (
-            <span className="text-[13px] text-slate-400 italic">Chưa có kỹ năng nào</span>
-          )}
-        </div>
-
-        {/* Skill input */}
-        <div className="flex gap-2 mb-3">
-          <input value={skillInput} onChange={e => setSkillInput(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addSkill(skillInput) } }}
-            placeholder="Nhập kỹ năng và nhấn Enter..."
-            className={`${inputStyle} flex-1`}
-          />
-          <button onClick={() => addSkill(skillInput)} disabled={!skillInput.trim()}
-            className={`px-4.5 py-2.5 rounded-xl border-none font-bold font-inherit text-[13px] inline-flex items-center gap-1 transition-all ${
-              skillInput.trim()
-                ? 'bg-blue-500 text-white cursor-pointer hover:bg-blue-600'
-                : 'bg-blue-500/50 text-white/70 cursor-not-allowed'
-            }`}>
-            <Plus className="h-4 w-4" /> Thêm
-          </button>
-        </div>
-
-        {/* Suggestions */}
-        <div>
-          <p className="text-xs text-slate-400 mb-2">Gợi ý nhanh:</p>
-          <div className="flex flex-wrap gap-1.5">
-            {SKILL_SUGGESTIONS.filter(s => !form.required_skills.includes(s)).slice(0, 12).map(skill => (
-              <button key={skill} onClick={() => addSkill(skill)}
-                className="px-2.5 py-0.5 rounded-full text-xs font-medium border border-slate-200 bg-slate-50 text-slate-500 cursor-pointer font-inherit hover:border-blue-500 hover:text-blue-600 transition-all"
-              >
-                + {skill}
-              </button>
-            ))}
+            {/* Skill Suggestions */}
+            <div className="pt-2">
+              <p className="text-[11px] font-semibold text-slate-400 mb-2 uppercase tracking-wider">Gợi ý nhanh:</p>
+              <div className="flex flex-wrap gap-1.5">
+                {SKILL_SUGGESTIONS.filter(s => !form.required_skills.includes(s)).slice(0, 10).map(skill => (
+                  <button
+                    key={skill}
+                    type="button"
+                    onClick={() => addSkill(skill)}
+                    className="px-2.5 py-1 rounded-xl text-xs font-medium bg-slate-100 text-slate-600 hover:bg-purple-50 hover:text-[#7C3AED] transition-colors cursor-pointer"
+                  >
+                    + {skill}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      {/* Actions */}
-      <div className="flex gap-3 flex-wrap flex-row">
-        <button onClick={() => navigate('/employer/jobs')}
-          className="px-6 py-3 rounded-xl border-2 border-slate-200 bg-white cursor-pointer text-sm font-semibold font-inherit text-slate-500 hover:bg-slate-50 transition-colors">
-          Hủy
-        </button>
-        <button onClick={() => handleSave(false)} disabled={saving}
-          className={`px-6 py-3 rounded-xl border-2 border-slate-200 bg-white text-sm font-semibold font-inherit text-slate-900 inline-flex items-center gap-1.5 transition-all ${
-            saving ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:bg-slate-50'
-          }`}>
-          <Save className="h-4 w-4" /> Lưu nháp
-        </button>
-        <button onClick={() => handleSave(true)} disabled={saving}
-          className={`px-7 py-3 rounded-xl border-none text-white text-sm font-extrabold font-inherit flex-1 inline-flex items-center justify-center gap-1.5 transition-all ${
-            saving
-              ? 'bg-blue-300 cursor-not-allowed shadow-none'
-              : 'bg-gradient-to-r from-blue-700 to-blue-500 cursor-pointer shadow-lg shadow-blue-500/35 hover:shadow-xl hover:shadow-blue-500/45'
-          }`}>
-          {saving ? <><Loader2 className="h-4 w-4 animate-spin" /> Đang lưu...</> : isEdit ? <><CheckCircle2 className="h-4 w-4" /> Cập nhật & Gửi duyệt</> : <><Rocket className="h-4 w-4" /> Đăng tin (Chờ duyệt)</>}
-        </button>
+        </div>
+
+        {/* Column 2 (Right, 7 cols): Actions on Top + Job Content */}
+        <div className="lg:col-span-7 flex flex-col space-y-4">
+          
+          {/* Action Buttons at the Top of Right Column */}
+          <div className="flex gap-2.5 flex-col sm:flex-row justify-end shrink-0">
+            <button
+              type="button"
+              onClick={() => handleSave(false)}
+              disabled={saving}
+              className="h-10 px-5 rounded-xl bg-purple-50 hover:bg-purple-100/80 text-[#7C3AED] text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
+            >
+              <Save className="h-4 w-4" /> Lưu nháp
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleSave(true)}
+              disabled={saving}
+              className="h-10 px-6 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer disabled:opacity-50"
+            >
+              {saving ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" /> Đang xử lý...
+                </>
+              ) : isEdit ? (
+                <>
+                  <CheckCircle2 className="h-4 w-4" /> Cập nhật tin tuyển dụng
+                </>
+              ) : (
+                <>
+                  <Rocket className="h-4 w-4" /> Đăng tin tuyển dụng
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Card: Job Content */}
+          <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-200/80 flex-1 flex flex-col justify-between space-y-4">
+            <div className="flex items-center gap-2.5 shrink-0">
+              <div className="w-8 h-8 rounded-xl bg-purple-50 text-[#7C3AED] flex items-center justify-center shrink-0">
+                <FileText className="h-4 w-4" />
+              </div>
+              <h2 className="text-base font-bold text-slate-900">Nội dung tuyển dụng</h2>
+            </div>
+
+            <Field label="Tiêu đề vị trí" required error={errors.title} className="shrink-0">
+              <input
+                value={form.title}
+                onChange={e => set('title', e.target.value)}
+                placeholder="VD: Senior Frontend Developer (React)"
+                className={`${inputStyle} ${errors.title ? '!border-rose-500' : ''}`}
+              />
+            </Field>
+
+            <Field label="Mô tả công việc" required hint="nhiệm vụ, vai trò" error={errors.description} className="flex-1 flex flex-col">
+              <textarea
+                value={form.description}
+                onChange={e => set('description', e.target.value)}
+                rows={5}
+                placeholder="Mô tả chi tiết công việc, trách nhiệm chính..."
+                className={`${inputStyle} resize-y flex-1 min-h-[120px] ${errors.description ? '!border-rose-500' : ''}`}
+              />
+            </Field>
+
+            <Field label="Yêu cầu ứng viên" hint="kinh nghiệm, kỹ năng" className="flex-1 flex flex-col">
+              <textarea
+                value={form.requirements}
+                onChange={e => set('requirements', e.target.value)}
+                rows={4}
+                placeholder="Yêu cầu về kinh nghiệm, bằng cấp, kỹ năng mềm..."
+                className={`${inputStyle} resize-y flex-1 min-h-[100px]`}
+              />
+            </Field>
+
+            <Field label="Quyền lợi & Đãi ngộ" hint="chế độ, bảo hiểm" className="flex-1 flex flex-col">
+              <textarea
+                value={form.benefits}
+                onChange={e => set('benefits', e.target.value)}
+                rows={4}
+                placeholder="Lương thưởng, bảo hiểm, môi trường làm việc, teambuilding..."
+                className={`${inputStyle} resize-y flex-1 min-h-[90px]`}
+              />
+            </Field>
+          </div>
+
+        </div>
+
       </div>
     </div>
   )

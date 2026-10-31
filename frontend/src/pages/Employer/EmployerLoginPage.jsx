@@ -3,10 +3,22 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Building2, ClipboardList, Bot, BarChart3, User, FlaskConical, Eye, EyeOff, AlertTriangle } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import {
+  Building2,
+  CheckCircle2,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  AlertTriangle,
+  ArrowRight,
+  User,
+  Loader2,
+} from "lucide-react";
 
 export default function EmployerLoginPage() {
-  const { login, logout } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from || "/employer/dashboard";
@@ -24,373 +36,195 @@ export default function EmployerLoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.email || !form.password) {
-      setError("Vui lòng điền đầy đủ thông tin");
+      setError("Vui lòng điền đầy đủ email và mật khẩu.");
       return;
     }
     setLoading(true);
     try {
       const res = await login(form.email, form.password);
+      if (res.user.role === "admin") {
+        navigate("/admin", { replace: true });
+        return;
+      }
       if (res.user.role !== "employer" && res.user.role !== "recruiter") {
-        await logout();
-        setError("Tài khoản này không có quyền truy cập cổng nhà tuyển dụng.");
-        setLoading(false);
+        navigate("/", { replace: true });
         return;
       }
       navigate(from, { replace: true });
     } catch (err) {
-      setError(err?.message || "Đăng nhập thất bại. Vui lòng thử lại.");
+      setError(err?.message || "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="employer-auth-page">
-      {/* Left panel */}
-      <div className="employer-auth-left">
-        <div className="employer-auth-left-content">
-          <Link to="/" className="employer-auth-logo">
-            <div className="employer-auth-logo-icon">N</div>
-            <span>
-              Nex<span style={{ color: "#A78BFA" }}>CV</span>
-            </span>
-          </Link>
+    <div className="min-h-screen flex bg-slate-50 font-sans">
+      {/* Left panel: Employer brand hero (desktop only) - PURPLE THEME */}
+      <div className="hidden lg:flex lg:w-5/12 xl:w-1/2 bg-linear-to-br from-[#0F172A] via-[#1E1B4B] to-[#7C3AED] flex-col justify-center p-12 xl:p-16 relative overflow-hidden text-white">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-violet-600/20 rounded-full blur-3xl pointer-events-none" />
 
-          <div style={{ marginBottom: 40 }}>
-            <h2 className="employer-auth-title">
-              Chào mừng nhà
-              <br />
-              tuyển dụng trở lại{' '}
-              <Building2 className="inline-block h-7 w-7 text-violet-300" />
-            </h2>
-            <p className="employer-auth-subtitle">
-              Đăng nhập để quản lý tin tuyển dụng và tìm kiếm ứng viên phù hợp
-              với AI.
-            </p>
+        {/* Center content - Minimal text */}
+        <div className="relative z-10 max-w-lg">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/20 border border-purple-400/30 text-purple-200 text-xs font-semibold mb-4">
+            <Building2 className="h-3.5 w-3.5" />
+            <span>Cổng Nhà Tuyển Dụng</span>
           </div>
 
-          <div className="employer-auth-features">
+          <h2 className="text-3xl xl:text-4xl font-black text-white leading-tight mb-3">
+            Tuyển dụng thông minh hơn
+          </h2>
+          <p className="text-slate-300 text-sm leading-relaxed mb-6">
+            Đăng tin, quản lý và tự động xếp hạng hồ sơ ứng viên bằng AI.
+          </p>
+
+          <div className="space-y-3">
             {[
-              {
-                icon: <ClipboardList className="h-5 w-5" />,
-                title: "Quản lý tin tuyển dụng",
-                desc: "Đăng, chỉnh sửa và theo dõi hiệu quả",
-              },
-              {
-                icon: <Bot className="h-5 w-5" />,
-                title: "AI chấm điểm CV tự động",
-                desc: "Lọc ứng viên chất lượng trong vài giây",
-              },
-              {
-                icon: <BarChart3 className="h-5 w-5" />,
-                title: "Dashboard thống kê",
-                desc: "Theo dõi toàn bộ quá trình tuyển dụng",
-              },
-            ].map((f) => (
-              <div key={f.title} className="employer-auth-feature-item">
-                <span className="employer-auth-feature-icon" style={{ color: '#A78BFA' }}>{f.icon}</span>
-                <div>
-                  <div className="employer-auth-feature-title">{f.title}</div>
-                  <div className="employer-auth-feature-desc">{f.desc}</div>
+              "Quản lý hồ sơ ứng viên tập trung",
+              "AI tự động phân tích độ tương thích JD",
+              "Kết nối 50,000+ nhân tài chất lượng cao",
+            ].map((text, idx) => (
+              <div key={idx} className="flex items-center gap-3">
+                <div className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-400" />
                 </div>
+                <span className="text-slate-200 text-sm font-medium">{text}</span>
               </div>
             ))}
           </div>
-
-          <div className="employer-auth-divider-note">
-            <Link to="/login" className="employer-auth-switch-link">
-              <User className="inline-block h-3.5 w-3.5 mr-1" /> Bạn là ứng viên? Đăng nhập tại đây
-            </Link>
-          </div>
         </div>
       </div>
 
-      {/* Right panel */}
-      <div className="employer-auth-right">
-        <div className="employer-auth-form-wrap">
-          {/* Mobile logo */}
-          <Link to="/" className="employer-auth-logo mobile-logo">
-            <div className="employer-auth-logo-icon">N</div>
-            <span style={{ fontWeight: 800, fontSize: 20, color: "#7C3AED" }}>
-              Nex<span style={{ color: "#1E40AF" }}>CV</span>
+      {/* Right panel: Login form */}
+      <div className="flex-1 flex items-center justify-center p-6 sm:p-10 lg:p-12">
+        <div className="w-full max-w-md">
+          {/* Mobile Logo */}
+          <Link to="/" className="lg:hidden inline-flex items-center gap-2 mb-8">
+            <div className="w-8 h-8 bg-[#7C3AED] rounded-xl flex items-center justify-center shadow-sm">
+              <span className="text-white font-black text-sm">N</span>
+            </div>
+            <span className="font-black text-xl text-[#0F172A] tracking-tight">
+              Nex<span className="text-[#7C3AED]">CV</span>
             </span>
           </Link>
 
-          <div style={{ marginBottom: 28 }}>
-            <div className="employer-auth-tag">
-              <Building2 className="h-3.5 w-3.5" /> Cổng nhà tuyển dụng
+          {/* Form Card: rounded-2xl, clean and airy */}
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-7 sm:p-9">
+            <div className="mb-6">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-purple-50 text-[#7C3AED] text-xs font-bold mb-2">
+                <Building2 className="h-3 w-3" /> Cổng Nhà Tuyển Dụng
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-black text-[#0F172A] mb-1">
+                Đăng nhập
+              </h1>
+              <p className="text-slate-500 text-sm">
+                Chưa có tài khoản?{" "}
+                <Link
+                  to="/employer/register"
+                  className="text-[#7C3AED] font-bold hover:underline"
+                >
+                  Đăng ký miễn phí
+                </Link>
+              </p>
             </div>
-            <h1 className="employer-auth-form-title">Đăng nhập</h1>
-            <p className="employer-auth-form-sub">
-              Chưa có tài khoản?{" "}
-              <Link to="/employer/register" className="employer-auth-form-link">
-                Đăng ký ngay — miễn phí
-              </Link>
-            </p>
-          </div>
 
-          {error && (
-            error.includes('bị cấm')
-              ? <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 10, padding: '12px 14px', fontSize: 13, color: '#DC2626', marginBottom: 4, display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-                  <svg style={{ width: 18, height: 18, flexShrink: 0, marginTop: 1 }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-1.964-.833-2.732 0L4.232 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                  </svg>
-                  <span>{error}</span>
+            {/* Error banner */}
+            {error && (
+              <div className="mb-5 p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-sm text-rose-700 flex items-start gap-2.5">
+                <AlertTriangle className="h-5 w-5 text-rose-600 shrink-0 mt-0.5" />
+                <span className="leading-snug text-xs sm:text-sm font-medium">{error}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Email */}
+              <div className="space-y-1.5">
+                <Label htmlFor="email" className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  Email công ty *
+                </Label>
+                <div className="relative">
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Input
+                    id="email"
+                    type="email"
+                    name="email"
+                    placeholder="hr@company.com"
+                    autoComplete="email"
+                    value={form.email}
+                    onChange={handleChange}
+                    className="pl-10 h-11 rounded-xl border-slate-200 focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20 text-sm"
+                  />
                 </div>
-              : <div className="employer-auth-error"><AlertTriangle className="inline-block h-3.5 w-3.5 mr-1" />{error}</div>
-          )}
-          {/* Demo account hint */}
-          <div
-            onClick={() =>
-              setForm({ email: "employer_demo@nexcv.vn", password: "demo123" })
-            }
-            style={{
-              background:
-                "linear-gradient(135deg, rgba(124,58,237,0.08), rgba(21,73,184,0.08))",
-              border: "1.5px dashed rgba(124,58,237,0.35)",
-              borderRadius: 10,
-              padding: "10px 14px",
-              marginBottom: 16,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              transition: "all 0.2s",
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.background =
-                "linear-gradient(135deg, rgba(124,58,237,0.14), rgba(21,73,184,0.14))")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.background =
-                "linear-gradient(135deg, rgba(124,58,237,0.08), rgba(21,73,184,0.08))")
-            }
-          >
-            <div>                  <div
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 700,
-                        color: "#7C3AED",
-                        marginBottom: 2,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 6,
-                      }}
-                    >
-                      <FlaskConical className="h-3.5 w-3.5" /> Tài khoản demo
-                    </div>
-              <div style={{ fontSize: 12, color: "#64748B" }}>
-                employer_demo@nexcv.vn · demo123
               </div>
-            </div>
-            <div
-              style={{
-                fontSize: 11,
-                color: "#7C3AED",
-                fontWeight: 600,
-                whiteSpace: "nowrap",
-              }}
-            >
-              Click để điền ↗
+
+              {/* Password */}
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-center">
+                  <Label htmlFor="password" className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                    Mật khẩu *
+                  </Label>
+                  <Link
+                    to="/forgot-password"
+                    className="text-xs text-[#7C3AED] hover:underline font-semibold"
+                  >
+                    Quên mật khẩu?
+                  </Link>
+                </div>
+                <div className="relative">
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Input
+                    id="password"
+                    type={showPass ? "text" : "password"}
+                    name="password"
+                    placeholder="Nhập mật khẩu"
+                    autoComplete="current-password"
+                    value={form.password}
+                    onChange={handleChange}
+                    className="pl-10 pr-10 h-11 rounded-xl border-slate-200 focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20 text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPass((v) => !v)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+                  >
+                    {showPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Submit button */}
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full h-11 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold text-sm shadow-md transition-all active:scale-[0.99] cursor-pointer mt-2"
+              >
+                {loading ? (
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Đang đăng nhập...
+                  </span>
+                ) : (
+                  <span className="flex items-center justify-center gap-2">
+                    Đăng nhập nhà tuyển dụng <ArrowRight className="h-4 w-4" />
+                  </span>
+                )}
+              </Button>
+            </form>
+
+            {/* Switch to Candidate Portal */}
+            <div className="mt-6 pt-4 border-t border-slate-100 text-center">
+              <Link
+                to="/login"
+                className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-[#7C3AED] font-semibold transition-colors"
+              >
+                <User className="h-3.5 w-3.5" />
+                <span>Bạn là ứng viên? Đăng nhập cổng ứng viên</span>
+              </Link>
             </div>
           </div>
-          <form
-            onSubmit={handleSubmit}
-            style={{ display: "flex", flexDirection: "column", gap: 16 }}
-          >
-            <div>
-              <label className="employer-auth-label">Email công ty</label>
-              <Input
-                type="email"
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                placeholder="hr@company.com"
-                className="employer-auth-input"
-              />
-            </div>
-
-            <div>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  marginBottom: 6,
-                }}
-              >
-                <label
-                  className="employer-auth-label"
-                  style={{ marginBottom: 0 }}
-                >
-                  Mật khẩu
-                </label>
-                <a href="/forgot-password" className="employer-auth-forgot">
-                  Quên mật khẩu?
-                </a>
-              </div>
-              <div style={{ position: "relative" }}>
-                <Input
-                  type={showPass ? "text" : "password"}
-                  name="password"
-                  value={form.password}
-                  onChange={handleChange}
-                  placeholder="Nhập mật khẩu"
-                  className="employer-auth-input"
-                  style={{ paddingRight: 44 }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPass((v) => !v)}
-                  className="employer-auth-eye"
-                >
-                  {showPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-            </div>
-
-            <Button
-              type="submit"
-              disabled={loading}
-              className="employer-auth-submit-btn"
-              style={{
-                background: loading
-                  ? "#A78BFA"
-                  : "linear-gradient(135deg, #7C3AED, #5B21B6)",
-                height: 44,
-              }}
-            >
-              {loading ? (
-                <>
-                  <svg
-                    style={{
-                      animation: "spin 1s linear infinite",
-                      marginRight: 8,
-                    }}
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="white"
-                    strokeWidth="2"
-                  >
-                    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4" />
-                  </svg>
-                  Đang đăng nhập...
-                </>
-              ) : (
-                <><Building2 className="h-4 w-4" /> Đăng nhập nhà tuyển dụng</>
-              )}
-            </Button>
-          </form>
-
-          <p className="employer-auth-terms">
-            Bằng cách đăng nhập, bạn đồng ý với{" "}
-            <a href="#">Điều khoản dịch vụ</a> và{" "}
-            <a href="#">Chính sách bảo mật</a>
-          </p>
         </div>
       </div>
-
-      <style>{`
-        .employer-auth-page {
-          min-height: 100vh; display: flex; background: #F8FAFC;
-        }
-        .employer-auth-left {
-          flex: 1; background: linear-gradient(145deg, #1E1B4B 0%, #4C1D95 60%, #6D28D9 100%);
-          display: none; flex-direction: column; justify-content: center; padding: 60px;
-          position: relative; overflow: hidden;
-        }
-        .employer-auth-left::before {
-          content: ''; position: absolute; top: -100px; right: -100px;
-          width: 400px; height: 400px; border-radius: 50%;
-          background: rgba(124,58,237,0.2);
-        }
-        .employer-auth-left::after {
-          content: ''; position: absolute; bottom: -80px; left: -60px;
-          width: 300px; height: 300px; border-radius: 50%;
-          background: rgba(30,27,75,0.4);
-        }
-        .employer-auth-left-content { position: relative; z-index: 1; }
-        .employer-auth-logo {
-          display: flex; align-items: center; gap: 10px;
-          text-decoration: none; margin-bottom: 48px;
-          font-weight: 800; font-size: 22px; color: white;
-        }
-        .employer-auth-logo-icon {
-          width: 38px; height: 38px; border-radius: 10px; background: white;
-          display: flex; align-items: center; justify-content: center;
-          font-weight: 900; font-size: 17px; color: #7C3AED; flex-shrink: 0;
-        }
-        .employer-auth-title {
-          font-size: 34px; font-weight: 800; color: white;
-          line-height: 1.25; margin-bottom: 14px;
-        }
-        .employer-auth-subtitle {
-          color: rgba(255,255,255,0.65); font-size: 15px; line-height: 1.7;
-        }
-        .employer-auth-features { display: flex; flex-direction: column; gap: 14px; margin-bottom: 32px; }
-        .employer-auth-feature-item {
-          display: flex; gap: 14px; align-items: flex-start;
-          background: rgba(255,255,255,0.07); border-radius: 12px;
-          padding: 14px 16px; border: 1px solid rgba(255,255,255,0.1);
-        }
-        .employer-auth-feature-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
-        .employer-auth-feature-title { font-size: 14px; font-weight: 600; color: white; margin-bottom: 2px; }
-        .employer-auth-feature-desc { font-size: 12px; color: rgba(255,255,255,0.55); }
-        .employer-auth-divider-note { padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.15); }
-        .employer-auth-switch-link {
-          font-size: 13px; color: rgba(255,255,255,0.6); text-decoration: none;
-          transition: color 0.15s;
-        }
-        .employer-auth-switch-link:hover { color: white; }
-
-        .employer-auth-right {
-          flex: 1; display: flex; align-items: center; justify-content: center;
-          padding: 32px 24px;
-        }
-        .employer-auth-form-wrap { width: 100%; max-width: 420px; }
-        .mobile-logo { margin-bottom: 24px; }
-        .employer-auth-tag {
-          display: inline-flex; align-items: center; gap: 6px;
-          background: rgba(124,58,237,0.1); color: #7C3AED;
-          border: 1px solid rgba(124,58,237,0.2); border-radius: 20px;
-          padding: 4px 12px; font-size: 12px; font-weight: 600;
-          margin-bottom: 12px;
-        }
-        .employer-auth-form-title {
-          font-size: 26px; font-weight: 800; color: #0F172A; margin-bottom: 6px;
-        }
-        .employer-auth-form-sub { font-size: 14px; color: #64748B; }
-        .employer-auth-form-link { color: #7C3AED; font-weight: 600; text-decoration: none; }
-        .employer-auth-form-link:hover { text-decoration: underline; }
-        .employer-auth-error {
-          background: #FEF2F2; border: 1px solid rgba(239,68,68,0.25);
-          border-radius: 10px; padding: 10px 14px;
-          font-size: 13px; color: #DC2626; margin-bottom: 4px;
-        }
-        .employer-auth-label {
-          display: block; font-size: 13px; font-weight: 600;
-          color: #0F172A; margin-bottom: 6px;
-        }
-        .employer-auth-input { border-radius: 10px !important; font-size: 14px !important; }
-        .employer-auth-forgot { font-size: 12px; color: #7C3AED; text-decoration: none; font-weight: 500; }
-        .employer-auth-eye {
-          position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-          background: none; border: none; cursor: pointer; color: #94A3B8; padding: 0;
-          font-size: 16px;
-        }
-        .employer-auth-submit-btn { width: 100%; font-size: 15px !important; font-weight: 700 !important; }
-        .employer-auth-terms {
-          text-align: center; margin-top: 20px; font-size: 12px; color: #94A3B8;
-        }
-        .employer-auth-terms a { color: #7C3AED; text-decoration: none; }
-
-        @media (min-width: 768px) {
-          .employer-auth-left { display: flex; }
-          .mobile-logo { display: none; }
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-      `}</style>
     </div>
   );
 }

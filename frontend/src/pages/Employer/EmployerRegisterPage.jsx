@@ -1,246 +1,503 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../../context/AuthContext'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Sparkles, Bot, Mail, User, Building2, Lock, Rocket, AlertTriangle, Info, Eye, EyeOff } from 'lucide-react'
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
+import {
+  CheckCircle2,
+  Mail,
+  User,
+  Building2,
+  Lock,
+  Rocket,
+  AlertTriangle,
+  Info,
+  Eye,
+  EyeOff,
+  Phone,
+  Globe,
+  Briefcase,
+  Loader2,
+} from "lucide-react";
 
 function PasswordStrength({ password }) {
-  const checks = [password.length >= 8, /[A-Z]/.test(password), /[0-9]/.test(password), /[^A-Za-z0-9]/.test(password)]
-  const score = checks.filter(Boolean).length
-  const barColors = ['', 'bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-green-500']
-  const textColors = ['', 'text-red-500', 'text-orange-500', 'text-yellow-400', 'text-green-500']
-  const labels = ['Rất yếu', 'Yếu', 'Trung bình', 'Mạnh']
-  if (!password) return null
+  if (!password) return null;
+  const checks = [
+    password.length >= 8,
+    /[A-Z]/.test(password),
+    /[0-9]/.test(password),
+    /[^A-Za-z0-9]/.test(password),
+  ];
+  const score = checks.filter(Boolean).length;
+  const colors = ["bg-rose-500", "bg-amber-500", "bg-yellow-400", "bg-emerald-500"];
+  const labels = ["Rất yếu", "Yếu", "Trung bình", "Mạnh"];
+  const activeColor = colors[score - 1] || "bg-slate-200";
+
   return (
-    <div className="mt-1.5">
-      <div className="flex gap-1 mb-1">
-        {[1,2,3,4].map(i => (
+    <div className="mt-2 space-y-1">
+      <div className="flex gap-1.5">
+        {[1, 2, 3, 4].map((i) => (
           <div
             key={i}
-            className={`flex-1 h-1 rounded-sm transition-all duration-300 ${i <= score ? barColors[score] : 'bg-slate-200'}`}
+            className={cn(
+              "h-1.5 flex-1 rounded-full transition-all duration-300",
+              i <= score ? activeColor : "bg-slate-200"
+            )}
           />
         ))}
       </div>
-      <p className={`text-[11px] m-0 ${score ? textColors[score] : ''}`}>
-        Độ mạnh: {labels[score-1] || ''}
-      </p>
+      <div className="flex justify-between items-center text-[11px]">
+        <span className="text-slate-400">Độ bảo mật:</span>
+        <span
+          className={cn(
+            "font-semibold",
+            score <= 1
+              ? "text-rose-600"
+              : score === 2
+              ? "text-amber-600"
+              : score === 3
+              ? "text-yellow-600"
+              : "text-emerald-600"
+          )}
+        >
+          {labels[score - 1] || ""}
+        </span>
+      </div>
     </div>
-  )
+  );
 }
 
-const Field = ({ name, label, type = 'text', placeholder, required, form, errors, set, showPass, setShowPass }) => (
-  <div>
-    <label className="block text-[13px] font-semibold text-slate-900 mb-1.5">
-      {label} {required && <span className="text-red-500">*</span>}
-    </label>
-    <div className="relative">
-      <Input
-        type={name === 'password' || name === 'confirmPassword' ? (showPass ? 'text' : 'password') : type}
-        name={name} value={form[name]} onChange={set} placeholder={placeholder}
-        className={`${errors[name] ? 'border-red-500!' : ''} ${(name === 'password' || name === 'confirmPassword') ? 'pr-11' : ''}`}
-      />
-      {(name === 'password' || name === 'confirmPassword') && (
-        <button type="button" onClick={() => setShowPass(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-slate-400 p-0">
-          {showPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-        </button>
-      )}
-    </div>
-    {name === 'password' && <PasswordStrength password={form.password} />}
-    {errors[name] && <p className="text-xs text-red-500 mt-1 flex items-center gap-1"><AlertTriangle className="h-3 w-3 shrink-0" />{errors[name]}</p>}
-  </div>
-)
-
 export default function EmployerRegisterPage() {
-  const { register } = useAuth()
-  const navigate = useNavigate()
+  const { register } = useAuth();
+  const navigate = useNavigate();
 
-  // Đọc dữ liệu prefill từ sessionStorage (do HomePage lưu trước khi logout)
   const prefill = (() => {
     try {
-      const raw = sessionStorage.getItem('employer_register_prefill')
+      const raw = sessionStorage.getItem("employer_register_prefill");
       if (raw) {
-        sessionStorage.removeItem('employer_register_prefill') // Xóa sau khi đọc
-        return JSON.parse(raw)
+        sessionStorage.removeItem("employer_register_prefill");
+        return JSON.parse(raw);
       }
-    } catch { /* empty */ }
-    return {}
-  })()
+    } catch {
+      /* empty */
+    }
+    return {};
+  })();
 
   const [form, setForm] = useState({
-    name: prefill.name || '', email: prefill.email || '', phone: prefill.phone || '',
-    password: '', confirmPassword: '',
-    companyName: '', companyWebsite: '', industry: '',
-  })
-  const [errors, setErrors] = useState({})
-  const [loading, setLoading] = useState(false)
-  const [showPass, setShowPass] = useState(false)
-  const [agreed, setAgreed] = useState(false)
+    name: prefill.name || "",
+    email: prefill.email || "",
+    phone: prefill.phone || "",
+    password: "",
+    confirmPassword: "",
+    companyName: "",
+    companyWebsite: "",
+    industry: "",
+  });
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [showPass, setShowPass] = useState(false);
+  const [showConfirmPass, setShowConfirmPass] = useState(false);
+  const [agreed, setAgreed] = useState(false);
 
   const set = (e) => {
-    setForm(p => ({ ...p, [e.target.name]: e.target.value }))
-    if (errors[e.target.name]) setErrors(p => ({ ...p, [e.target.name]: '' }))
-  }
+    const { name, value } = e.target;
+    setForm((p) => ({ ...p, [name]: value }));
+    if (errors[name]) setErrors((p) => ({ ...p, [name]: "" }));
+  };
 
   const validate = () => {
-    const errs = {}
-    if (!form.name.trim()) errs.name = 'Vui lòng nhập họ tên'
-    if (!form.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) errs.email = 'Email không hợp lệ'
-    if (form.phone && !form.phone.match(/^(0[3-9]\d{8})$/)) errs.phone = 'Số điện thoại không hợp lệ'
-    if (!form.companyName.trim()) errs.companyName = 'Vui lòng nhập tên công ty'
-    if (form.password.length < 6) errs.password = 'Mật khẩu ít nhất 6 ký tự'
-    if (form.password !== form.confirmPassword) errs.confirmPassword = 'Mật khẩu không khớp'
-    if (!agreed) errs.agreed = 'Vui lòng đồng ý điều khoản'
-    return errs
-  }
+    const errs = {};
+    if (!form.name.trim()) errs.name = "Vui lòng nhập họ và tên người đại diện";
+    if (!form.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/))
+      errs.email = "Địa chỉ email không hợp lệ";
+    if (form.phone && !form.phone.match(/^(0[3-9]\d{8})$/))
+      errs.phone = "Số điện thoại không hợp lệ (VD: 0901234567)";
+    if (!form.companyName.trim())
+      errs.companyName = "Vui lòng nhập tên doanh nghiệp";
+    if (form.password.length < 6)
+      errs.password = "Mật khẩu phải chứa ít nhất 6 ký tự";
+    if (form.password !== form.confirmPassword)
+      errs.confirmPassword = "Mật khẩu xác nhận không khớp";
+    if (!agreed)
+      errs.agreed = "Bạn cần đồng ý với Điều khoản dịch vụ và Chính sách bảo mật";
+    return errs;
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    const errs = validate()
-    if (Object.keys(errs).length) { setErrors(errs); return }
-    setLoading(true)
+    e.preventDefault();
+    const errs = validate();
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
+      return;
+    }
+    setLoading(true);
     try {
       await register({
-        name: form.name, email: form.email, phone: form.phone,
-        password: form.password, role: 'employer',
-        companyName: form.companyName, companyWebsite: form.companyWebsite,
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        password: form.password,
+        role: "employer",
+        companyName: form.companyName,
+        companyWebsite: form.companyWebsite,
         industry: form.industry,
-      })
-      navigate('/employer/dashboard')
+      });
+      navigate("/employer/dashboard");
     } catch (err) {
-      setErrors({ submit: err?.message || 'Đăng ký thất bại. Vui lòng thử lại.' })
+      setErrors({ submit: err?.message || "Đăng ký tài khoản thất bại. Vui lòng thử lại." });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
-
-  const fieldProps = { form, errors, set, showPass, setShowPass }
+  };
 
   return (
-    <div className="min-h-screen flex bg-[#F8FAFC]">
-      {/* Left panel */}
-      <div className="flex-1 bg-linear-to-br from-[#1E1B4B] via-[#4C1D95] to-[#6D28D9] hidden md:flex flex-col justify-center p-15 relative overflow-hidden">
-        <div className="absolute -top-25 -right-25 w-100 h-100 rounded-full bg-[#7C3AED]/20 pointer-events-none" />
-        <div className="relative z-10">
-          <Link to="/" className="flex items-center gap-2.5 no-underline mb-10 font-extrabold text-[22px] text-white">
-            <div className="w-9.5 h-9.5 rounded-xl bg-white flex items-center justify-center font-black text-[17px] text-[#7C3AED] shrink-0">N</div>
-            <span>Nex<span className="text-[#A78BFA]">CV</span></span>
-          </Link>
-          <h2 className="text-[32px] font-extrabold text-white leading-tight mb-3">Bắt đầu tuyển dụng<br />thông minh hơn{' '}<Sparkles className="inline-block h-6 w-6 text-yellow-300" /></h2>
-          <p className="text-[15px] text-white/65 leading-relaxed mb-7">
-            Tham gia cùng 2,000+ nhà tuyển dụng đang dùng NexCV để tìm ứng viên chất lượng nhanh hơn với AI.
-          </p>
-          <div className="flex flex-col gap-3 mb-7">
-            {[
-              { icon: <Sparkles className="h-5 w-5" />, title: 'Miễn phí hoàn toàn', desc: 'Không mất phí để đăng ký và sử dụng' },
-              { icon: <Bot className="h-5 w-5" />, title: 'AI matching tự động', desc: 'Tìm ứng viên phù hợp trong vài giây' },
-              { icon: <Mail className="h-5 w-5" />, title: 'Quản lý hồ sơ dễ dàng', desc: 'Xem, lọc và liên hệ ứng viên tiện lợi' },
-            ].map(f => (
-              <div key={f.title} className="flex gap-3.5 items-start bg-white/7 rounded-xl p-3.5 border border-white/10">
-                <span className="text-[#A78BFA] text-xl shrink-0">{f.icon}</span>
-                <div>
-                  <div className="text-[13px] font-semibold text-white mb-0.5">{f.title}</div>
-                  <div className="text-xs text-white/55">{f.desc}</div>
-                </div>
-              </div>
-            ))}
+    <div className="min-h-screen bg-[#F8FAFC] py-8 px-4 sm:px-6 font-sans">
+      <div className="max-w-6xl mx-auto">
+        {/* Page Header */}
+        <div className="mb-8">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-purple-50 text-[#7C3AED] text-xs font-bold mb-2.5">
+            <Building2 className="h-3.5 w-3.5" />
+            <span>Cổng Nhà Tuyển Dụng</span>
           </div>
-          <div className="pt-5 border-t border-white/15">
-            <Link to="/register" className="text-[13px] text-white/60 no-underline hover:text-white">
-              <User className="inline-block h-3.5 w-3.5 mr-1" /> Bạn là ứng viên? Đăng ký tại đây
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Right panel */}
-      <div className="flex-1 flex justify-center p-8 md:p-6 items-start pt-10 overflow-y-auto">
-        <div className="w-full max-w-115">
-          <Link to="/" className="flex items-center gap-2.5 no-underline mb-6 font-extrabold text-[22px] text-white md:hidden">
-            <div className="w-9.5 h-9.5 rounded-xl bg-white flex items-center justify-center font-black text-[17px] text-[#7C3AED] shrink-0">N</div>
-            <span className="font-extrabold text-xl text-[#7C3AED]">NexCV</span>
-          </Link>
-
-          <div className="mb-6">
-            <div className="inline-flex items-center gap-1.5 bg-[#7C3AED]/10 text-[#7C3AED] border border-[#7C3AED]/20 rounded-full px-3 py-1 text-xs font-semibold mb-2.5"><Building2 className="h-3.5 w-3.5" /> Đăng ký nhà tuyển dụng</div>
-            <h1 className="text-[26px] font-extrabold text-slate-900 mb-1.5">Tạo tài khoản</h1>
-            <p className="text-sm text-slate-500">
-              Đã có tài khoản?{' '}
-              <Link to="/employer/login" className="text-[#7C3AED] font-semibold no-underline">Đăng nhập</Link>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                Tạo tài khoản tuyển dụng
+              </h1>
+              <p className="text-sm text-slate-500 mt-1">
+                Tiếp cận 50,000+ nhân tài và tự động đối soát ứng viên bằng AI.
+              </p>
+            </div>
+            <p className="text-xs text-slate-500">
+              Đã có tài khoản?{" "}
+              <Link to="/employer/login" className="text-[#7C3AED] font-bold hover:underline">
+                Đăng nhập ngay
+              </Link>
             </p>
           </div>
+        </div>
 
-          {errors.submit && (
-            <div className="bg-red-50 border border-red-200/25 rounded-xl px-3.5 py-2.5 text-[13px] text-red-600 mb-4 flex items-center gap-1.5"><AlertTriangle className="h-3.5 w-3.5 shrink-0" />{errors.submit}</div>
-          )}
+        {/* Global Error Banner */}
+        {errors.submit && (
+          <div className="mb-6 p-4 bg-rose-50 border border-rose-200 rounded-2xl text-xs sm:text-sm text-rose-700 flex items-center gap-2.5">
+            <AlertTriangle className="h-5 w-5 text-rose-600 shrink-0" />
+            <span className="font-medium">{errors.submit}</span>
+          </div>
+        )}
 
-          {/* Thông báo nếu được điền sẵn từ trang chủ */}
-          {(prefill.name || prefill.email) && (
-            <div className="bg-[#EEF2FF] border border-[#C7D2FE] rounded-xl px-3.5 py-2.5 text-[13px] text-[#3730A3] mb-4 flex items-center gap-2">
-              <Info className="h-4 w-4 shrink-0" />
-              <span>Thông tin cá nhân đã được điền sẵn từ tài khoản ứng viên của bạn. Vui lòng kiểm tra lại trước khi gửi.</span>
-            </div>
-          )}
+        {/* Prefill note */}
+        {(prefill.name || prefill.email) && (
+          <div className="mb-6 p-4 bg-purple-50 rounded-2xl text-xs sm:text-sm text-[#7C3AED] flex items-center gap-2">
+            <Info className="h-4 w-4 shrink-0" />
+            <span>Thông tin cá nhân đã được tự động điền từ tài khoản của bạn.</span>
+          </div>
+        )}
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
-            {/* Thông tin cá nhân */}
-            <div className="p-4 bg-[#F8FAFC] rounded-xl border border-slate-200 flex flex-col gap-3.5">
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest m-0 flex items-center gap-1.5"><User className="h-3.5 w-3.5" /> Thông tin cá nhân</p>
-              <Field {...fieldProps} name="name" label="Họ và tên" placeholder="Nguyễn Văn An" required />
-              <div className="grid grid-cols-2 gap-3">
-                <Field {...fieldProps} name="email" label="Email" type="email" placeholder="hr@company.com" required />
-                <Field {...fieldProps} name="phone" label="Số điện thoại" placeholder="0901 234 567" />
-              </div>
-            </div>
+        <form onSubmit={handleSubmit}>
+          {/* 2-Column Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            {/* Column 1 (Left - 6 cols): Company Information */}
+            <div className="lg:col-span-6 space-y-6">
+              <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-200/80 space-y-5">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-purple-50 text-[#7C3AED] flex items-center justify-center shrink-0">
+                    <Building2 className="h-4 w-4" />
+                  </div>
+                  <h2 className="text-base font-bold text-slate-900">Thông tin doanh nghiệp</h2>
+                </div>
 
-            {/* Thông tin công ty */}
-            <div className="p-4 bg-[#F8FAFC] rounded-xl border border-slate-200 flex flex-col gap-3.5">
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest m-0 flex items-center gap-1.5"><Building2 className="h-3.5 w-3.5" /> Thông tin công ty</p>
-              <Field {...fieldProps} name="companyName" label="Tên công ty" placeholder="Công ty TNHH ABC" required />
-              <div className="grid grid-cols-2 gap-3">
-                <Field {...fieldProps} name="companyWebsite" label="Website" placeholder="https://company.com" />
-                <div>
-                  <label className="block text-[13px] font-semibold text-slate-900 mb-1.5">Lĩnh vực</label>
-                  <select name="industry" value={form.industry} onChange={set}
-                    className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm font-inherit text-slate-900 bg-white outline-none focus:border-[#7C3AED] transition-colors">
-                    <option value="">Chọn lĩnh vực</option>
-                    {['Công nghệ thông tin', 'Tài chính - Ngân hàng', 'Thương mại điện tử', 'Marketing', 'Giáo dục', 'Y tế', 'Xây dựng', 'Sản xuất', 'Khác'].map(i => (
-                      <option key={i} value={i}>{i}</option>
+                <div className="space-y-1.5">
+                  <Label htmlFor="companyName" className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                    Tên doanh nghiệp / Công ty <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="companyName"
+                    name="companyName"
+                    placeholder="VD: Công ty Cổ phần Công nghệ NexCV"
+                    value={form.companyName}
+                    onChange={set}
+                    className={cn(
+                      "h-11 rounded-xl bg-white border-slate-200 focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20 text-sm",
+                      errors.companyName && "border-rose-300"
+                    )}
+                  />
+                  {errors.companyName && <p className="text-xs text-rose-600">{errors.companyName}</p>}
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="industry" className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                    Lĩnh vực hoạt động
+                  </Label>
+                  <div className="relative">
+                    <select
+                      id="industry"
+                      name="industry"
+                      value={form.industry}
+                      onChange={set}
+                      className="w-full h-11 px-3.5 rounded-xl bg-white border-2 border-slate-200 text-sm text-slate-800 focus:border-[#7C3AED] outline-none transition-colors"
+                    >
+                      <option value="">Chọn lĩnh vực</option>
+                      {[
+                        "Công nghệ thông tin",
+                        "Tài chính - Ngân hàng",
+                        "Thương mại điện tử",
+                        "Marketing & Truyền thông",
+                        "Giáo dục & Đào tạo",
+                        "Y tế & Sức khỏe",
+                        "Sản xuất & Bán lẻ",
+                        "Khác",
+                      ].map((item) => (
+                        <option key={item} value={item}>
+                          {item}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="companyWebsite" className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                    Website công ty
+                  </Label>
+                  <div className="relative">
+                    <Globe className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <Input
+                      id="companyWebsite"
+                      name="companyWebsite"
+                      placeholder="https://company.com"
+                      value={form.companyWebsite}
+                      onChange={set}
+                      className="pl-10 h-11 rounded-xl bg-white border-slate-200 focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20 text-sm"
+                    />
+                  </div>
+                </div>
+
+                {/* Employer Privileges (Soft purple container) */}
+                <div className="bg-[#F5F3FF] rounded-2xl p-5 space-y-3 mt-2">
+                  <p className="text-xs font-bold text-[#7C3AED] uppercase tracking-wider">
+                    Quyền lợi nhà tuyển dụng:
+                  </p>
+                  <div className="space-y-2.5">
+                    {[
+                      "Đăng tin tuyển dụng và tiếp cận hơn 50,000+ hồ sơ",
+                      "AI tự động phân tích và xếp hạng CV chuẩn ATS",
+                      "Quản lý trạng thái ứng tuyển và liên hệ trực quan",
+                    ].map((text, idx) => (
+                      <div key={idx} className="flex items-center gap-2.5 text-xs text-slate-700">
+                        <div className="w-5 h-5 rounded-full bg-purple-100 text-[#7C3AED] flex items-center justify-center shrink-0">
+                          <CheckCircle2 className="h-3.5 w-3.5" />
+                        </div>
+                        <span className="font-medium">{text}</span>
+                      </div>
                     ))}
-                  </select>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Mật khẩu */}
-            <div className="p-4 bg-[#F8FAFC] rounded-xl border border-slate-200 flex flex-col gap-3.5">
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest m-0 flex items-center gap-1.5"><Lock className="h-3.5 w-3.5" /> Bảo mật</p>
-              <Field {...fieldProps} name="password" label="Mật khẩu" placeholder="Tối thiểu 6 ký tự" required />
-              <Field {...fieldProps} name="confirmPassword" label="Xác nhận mật khẩu" placeholder="Nhập lại mật khẩu" required />
+            {/* Column 2 (Right - 6 cols): Contact Person & Security */}
+            <div className="lg:col-span-6 space-y-6">
+              <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-200/80 space-y-5">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-purple-50 text-[#7C3AED] flex items-center justify-center shrink-0">
+                    <User className="h-4 w-4" />
+                  </div>
+                  <h2 className="text-base font-bold text-slate-900">Người liên hệ & Bảo mật</h2>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="name" className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                    Họ và tên người đại diện <span className="text-red-500">*</span>
+                  </Label>
+                  <div className="relative">
+                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <Input
+                      id="name"
+                      name="name"
+                      placeholder="Nguyễn Văn An"
+                      value={form.name}
+                      onChange={set}
+                      className={cn(
+                        "pl-10 h-11 rounded-xl bg-white border-slate-200 focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20 text-sm",
+                        errors.name && "border-rose-300"
+                      )}
+                    />
+                  </div>
+                  {errors.name && <p className="text-xs text-rose-600">{errors.name}</p>}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="email" className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                      Email công việc <span className="text-red-500">*</span>
+                    </Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        placeholder="hr@company.com"
+                        value={form.email}
+                        onChange={set}
+                        className={cn(
+                          "pl-10 h-11 rounded-xl bg-white border-slate-200 focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20 text-sm",
+                          errors.email && "border-rose-300"
+                        )}
+                      />
+                    </div>
+                    {errors.email && <p className="text-xs text-rose-600">{errors.email}</p>}
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="phone" className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                      Số điện thoại
+                    </Label>
+                    <div className="relative">
+                      <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                      <Input
+                        id="phone"
+                        name="phone"
+                        placeholder="0901 234 567"
+                        value={form.phone}
+                        onChange={set}
+                        className={cn(
+                          "pl-10 h-11 rounded-xl bg-white border-slate-200 focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20 text-sm",
+                          errors.phone && "border-rose-300"
+                        )}
+                      />
+                    </div>
+                    {errors.phone && <p className="text-xs text-rose-600">{errors.phone}</p>}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="password" className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                      Mật khẩu <span className="text-red-500">*</span>
+                    </Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                      <Input
+                        id="password"
+                        name="password"
+                        type={showPass ? "text" : "password"}
+                        placeholder="Tối thiểu 6 ký tự"
+                        value={form.password}
+                        onChange={set}
+                        className={cn(
+                          "pl-10 pr-10 h-11 rounded-xl bg-white border-slate-200 focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20 text-sm",
+                          errors.password && "border-rose-300"
+                        )}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPass((v) => !v)}
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+                      >
+                        {showPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                    <PasswordStrength password={form.password} />
+                    {errors.password && <p className="text-xs text-rose-600">{errors.password}</p>}
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="confirmPassword" className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                      Xác nhận mật khẩu <span className="text-red-500">*</span>
+                    </Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                      <Input
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        type={showConfirmPass ? "text" : "password"}
+                        placeholder="Nhập lại mật khẩu"
+                        value={form.confirmPassword}
+                        onChange={set}
+                        className={cn(
+                          "pl-10 pr-10 h-11 rounded-xl bg-white border-slate-200 focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20 text-sm",
+                          errors.confirmPassword && "border-rose-300"
+                        )}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPass((v) => !v)}
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+                      >
+                        {showConfirmPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                    {errors.confirmPassword && (
+                      <p className="text-xs text-rose-600">{errors.confirmPassword}</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Terms Checkbox */}
+                <div className="pt-1">
+                  <label className="flex items-start gap-2.5 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={agreed}
+                      onChange={(e) => setAgreed(e.target.checked)}
+                      className="mt-0.5 w-4 h-4 rounded text-[#7C3AED] focus:ring-[#7C3AED] shrink-0 cursor-pointer accent-[#7C3AED]"
+                    />
+                    <span className="text-xs text-slate-600 leading-relaxed">
+                      Tôi đồng ý với{" "}
+                      <a href="#" className="text-[#7C3AED] font-semibold hover:underline">
+                        Điều khoản dịch vụ
+                      </a>{" "}
+                      và{" "}
+                      <a href="#" className="text-[#7C3AED] font-semibold hover:underline">
+                        Chính sách bảo mật
+                      </a>{" "}
+                      của NexCV.
+                    </span>
+                  </label>
+                  {errors.agreed && (
+                    <p className="text-xs text-rose-600 font-medium mt-1">{errors.agreed}</p>
+                  )}
+                </div>
+
+                {/* Submit button */}
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full h-11 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold text-xs shadow-md transition-all active:scale-[0.99] cursor-pointer mt-1"
+                >
+                  {loading ? (
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Đang xử lý đăng ký...
+                    </span>
+                  ) : (
+                    <span className="flex items-center justify-center gap-2">
+                      <Rocket className="h-4 w-4" /> Đăng ký tài khoản doanh nghiệp
+                    </span>
+                  )}
+                </Button>
+
+                {/* Switch to Candidate Portal */}
+                <p className="text-center text-xs text-slate-400 pt-2">
+                  Bạn là ứng viên tìm việc?{" "}
+                  <Link
+                    to="/register"
+                    className="text-[#7C3AED] font-semibold hover:underline"
+                  >
+                    Đăng ký tại cổng ứng viên
+                  </Link>
+                </p>
+              </div>
             </div>
 
-            {/* Terms */}
-            <div>
-              <label className="flex items-start gap-2.5 cursor-pointer">
-                <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)}
-                  className="mt-0.5 w-4 h-4 accent-[#7C3AED] shrink-0" />
-                <span className="text-[13px] text-slate-500 leading-relaxed">
-                  Tôi đồng ý với <a href="#" className="text-[#7C3AED] no-underline font-medium">Điều khoản dịch vụ</a> và <a href="#" className="text-[#7C3AED] no-underline font-medium">Chính sách bảo mật</a>
-                </span>
-              </label>
-              {errors.agreed && <p className="text-xs text-red-500 ml-7 mt-1 flex items-center gap-1"><AlertTriangle className="h-3 w-3 shrink-0" />{errors.agreed}</p>}
-            </div>
-
-            <Button type="submit" disabled={loading}
-              className={`h-11 text-[15px] font-bold ${loading ? 'bg-[#A78BFA]' : 'bg-linear-to-r from-[#7C3AED] to-[#5B21B6]'}`}
-            >
-              {loading ? (
-                <><svg className="animate-spin mr-2" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/></svg>Đang tạo tài khoản...</>
-              ) : <><Rocket className="h-4 w-4" /> Tạo tài khoản nhà tuyển dụng</>}
-            </Button>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
     </div>
-  )
+  );
 }

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
 import { ClipboardList, Inbox, Eye, Hourglass, TrendingUp, FolderOpen } from 'lucide-react'
-import Spinner from '@/components/ui/Spinner'
+import Spinner from '@/components/common/Spinner'
 import { employerService } from '../../services/employerService'
 import StatCard from './components/StatCard'
 
@@ -45,20 +44,6 @@ export default function EmployerDashboard() {
 
   return (
     <div className="p-[32px_16px] max-w-[960px] mx-auto">
-      {/* Header */}
-      <div className="mb-7 flex justify-between items-start flex-wrap gap-3">
-        <div>
-          <h1 className="text-[clamp(20px,5vw,26px)] font-black text-[#0F172A] mb-1">Dashboard</h1>
-          <p className="text-sm text-muted-foreground">Tổng quan hoạt động tuyển dụng của bạn</p>
-        </div>
-        <Link
-          to="/employer/jobs/new"
-          className="inline-flex items-center gap-2 px-5 py-[10px] text-white rounded-xl no-underline font-bold text-sm shadow-lg shadow-blue-500/35 hover:shadow-blue-500/50 hover:-translate-y-0.5 transition-all duration-200 bg-gradient-to-br from-blue-800 to-blue-500"
-        >
-          ＋ Đăng tin mới
-        </Link>
-      </div>
-
       {/* Stat cards */}
       <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3 mb-7">
         <StatCard
@@ -137,31 +122,6 @@ export default function EmployerDashboard() {
               )
             })}
           </div>
-        </div>
-      </div>
-
-      {/* Quick links */}
-      <div
-        className="rounded-2xl p-5 flex gap-4 flex-wrap items-center justify-between bg-gradient-to-br from-slate-900 to-blue-900"
-      >
-        <div className="min-w-[200px]">
-          <p className="text-[rgba(255,255,255,0.5)] text-xs font-semibold uppercase mb-1">Thao tác nhanh</p>
-          <h3 className="text-white font-extrabold text-[clamp(14px,4vw,16px)]">Quản lý tuyển dụng hiệu quả hơn</h3>
-        </div>
-        <div className="flex gap-2.5 flex-wrap">
-          {[
-            { icon: ClipboardList, label: 'Xem tin đã đăng', to: '/employer/jobs' },
-            { icon: Inbox, label: 'Hồ sơ ứng tuyển', to: '/employer/jobs' },
-          ].map(link => (
-            <Link
-              key={link.to + link.label}
-              to={link.to}
-              className="px-[18px] py-[10px] rounded-xl text-sm font-bold text-white border border-white/20 no-underline transition-colors duration-200 hover:bg-white/20 bg-white/10"
-            >
-              <link.icon size={16} className="inline-block mr-1.5" />
-              {link.label}
-            </Link>
-          ))}
         </div>
       </div>
     </div>

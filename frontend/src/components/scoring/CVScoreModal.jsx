@@ -1,11 +1,11 @@
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip as RechartsTooltip } from 'recharts'
-import { Upload, ArrowRight, X, Sparkles, ThumbsUp, TrendingUp, Briefcase, ClipboardList, Activity, BarChart3, Pin, Lightbulb, Check, AlertTriangle } from 'lucide-react'
+import { Upload, ArrowRight, X, ThumbsUp, TrendingUp, Briefcase, ClipboardList, Activity, BarChart3, Pin, Lightbulb, Check, AlertTriangle } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Dialog, DialogContent, DialogClose } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
-import ScoreRing from '@/components/ui/ScoreRing'
+import ScoreRing from '@/components/scoring/ScoreRing'
 
 /** Map the grade letter to badge variant classes + a custom accent color */
 function gradeBadge(grade) {
@@ -125,7 +125,7 @@ export default function CVScoreModal({ open, onClose, result, onReset }) {
         showCloseButton={false}
       >
         {/* ── Sticky header bar ── */}
-        <div className="flex items-center justify-between px-5 py-3 border-b bg-background shrink-0">
+        <div className="flex items-center justify-between px-5 py-3 bg-background shrink-0">
           <span className="text-sm font-semibold text-foreground/70">Kết quả phân tích AI</span>
           <DialogClose asChild>
             <button className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
@@ -144,7 +144,7 @@ export default function CVScoreModal({ open, onClose, result, onReset }) {
             <div className="flex-1 text-center md:text-left space-y-3">
               <div className="flex flex-col md:flex-row items-center gap-3">
                 <h2 className="font-black text-2xl leading-tight">
-                  {score >= 85 ? <><Sparkles className="inline-block h-5 w-5 text-yellow-300" /> CV rất ấn tượng!</> : score >= 70 ? <><ThumbsUp className="inline-block h-5 w-5" /> CV tốt, còn cải thiện được</> : <><TrendingUp className="inline-block h-5 w-5" /> CV cần cải thiện thêm</>}
+                  {score >= 85 ? <><Check className="inline-block h-5 w-5 text-emerald-300" /> CV rất ấn tượng!</> : score >= 70 ? <><ThumbsUp className="inline-block h-5 w-5" /> CV tốt, còn cải thiện được</> : <><TrendingUp className="inline-block h-5 w-5" /> CV cần cải thiện thêm</>}
                 </h2>
                 <Badge variant={badge.variant} className="text-xs px-2.5 py-0.5 !text-white"
                   style={{ backgroundColor: badge.accent }}>
@@ -155,7 +155,7 @@ export default function CVScoreModal({ open, onClose, result, onReset }) {
               {hasLevel && <p className="text-sky-300 text-sm font-semibold">Cấp độ: {levelText}</p>}
               
               {hasAssessment && (
-                <div className="mt-3 text-sm text-blue-50/90 leading-relaxed bg-black/10 p-3.5 rounded-lg border border-white/10 text-left">
+                <div className="mt-3 text-sm text-blue-50/90 leading-relaxed bg-black/10 p-3.5 rounded-xl text-left">
                   {overallAssessment}
                 </div>
               )}
@@ -175,7 +175,7 @@ export default function CVScoreModal({ open, onClose, result, onReset }) {
           {/* ═══ Bottom Grid Content ═══ */}
           <div className="p-6">
             {!hasCategories && !hasImprovements ? (
-                <div className="text-center py-12 px-4 rounded-xl border border-dashed border-border bg-background">
+                <div className="text-center py-12 px-4 rounded-2xl bg-background">
                   <ClipboardList className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
                   <p className="text-sm font-semibold text-foreground mb-1">Chưa có dữ liệu phân tích chi tiết</p>
                   <p className="text-xs text-muted-foreground">
@@ -200,7 +200,7 @@ export default function CVScoreModal({ open, onClose, result, onReset }) {
                   {hasStrengths && (
                     <Card className="shadow-sm border-emerald-100/50">
                       <CardContent className="p-5">
-                        <h3 className="font-bold text-emerald-600 mb-4 flex items-center gap-2 text-sm border-b border-emerald-50 pb-3">
+                        <h3 className="font-bold text-emerald-600 mb-4 flex items-center gap-2 text-sm">
                           <span className="bg-emerald-100 p-1.5 rounded-md text-emerald-600 leading-none"><Check className="h-4 w-4" /></span> Điểm mạnh
                         </h3>
                         <div className="space-y-3">
@@ -218,13 +218,13 @@ export default function CVScoreModal({ open, onClose, result, onReset }) {
                   {hasImprovements && (
                     <Card className="shadow-sm border-amber-100/50">
                       <CardContent className="p-5">
-                        <h3 className="font-bold text-amber-600 mb-4 flex items-center gap-2 text-sm border-b border-amber-50 pb-3">
+                        <h3 className="font-bold text-amber-600 mb-4 flex items-center gap-2 text-sm">
                           <span className="bg-amber-100 p-1.5 rounded-md text-amber-600 leading-none"><AlertTriangle className="h-4 w-4" /></span> Cần cải thiện
                         </h3>
                         <div className="space-y-3.5">
                           {improvements.map((imp, i) => (
                             <div key={i} className="flex gap-3 items-start">
-                              <div className="w-5 h-5 rounded-full bg-amber-100 border border-amber-200 flex items-center justify-center text-xs font-bold text-amber-700 shrink-0 mt-0.5">
+                              <div className="w-5 h-5 rounded-full bg-amber-100 flex items-center justify-center text-xs font-bold text-amber-700 shrink-0 mt-0.5">
                                 {i + 1}
                               </div>
                               <p className="text-sm text-muted-foreground leading-relaxed">{imp}</p>
@@ -243,7 +243,7 @@ export default function CVScoreModal({ open, onClose, result, onReset }) {
                   {chartData.length > 0 && (
                     <Card className="shadow-sm border">
                       <CardContent className="p-5">
-                        <h3 className="font-bold text-foreground mb-4 flex items-center gap-2 text-sm border-b pb-3">
+                        <h3 className="font-bold text-foreground mb-4 flex items-center gap-2 text-sm">
                           <span className="bg-primary/10 p-1.5 rounded-md text-primary leading-none"><Activity className="h-4 w-4" /></span> Phân tích tổng quan
                         </h3>
                         <div className="h-[260px] w-full">
@@ -264,7 +264,7 @@ export default function CVScoreModal({ open, onClose, result, onReset }) {
                   {hasCategories && (
                     <Card className="shadow-sm border">
                       <CardContent className="p-5">
-                        <h3 className="font-bold text-foreground mb-5 flex items-center gap-2 text-sm border-b pb-3">
+                        <h3 className="font-bold text-foreground mb-5 flex items-center gap-2 text-sm">
                           <span className="bg-blue-100 p-1.5 rounded-md text-blue-600 leading-none"><BarChart3 className="h-4 w-4" /></span> Chi tiết theo tiêu chí
                         </h3>
                         <div className="space-y-6">

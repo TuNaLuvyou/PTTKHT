@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Shield, Eye, EyeOff, Loader2, Lock, AlertTriangle } from 'lucide-react'
+import { Shield, Eye, EyeOff, Loader2, AlertTriangle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -42,8 +42,6 @@ export default function AdminLoginPage() {
         } finally { setLoading(false) }
     }
 
-    const fillDemo = () => setForm({ email: 'admin@nexcv.vn', password: 'admin123' })
-
     return (
         <div className="min-h-screen bg-[#0F172A] flex items-center justify-center p-6">
             {/* Background decoration */}
@@ -72,15 +70,6 @@ export default function AdminLoginPage() {
                         <h1 className="text-2xl font-black text-white mb-1">Admin Portal</h1>
                         <p className="text-slate-400 text-sm">NexCV System Administration</p>
                     </div>
-
-                    {/* Demo hint */}
-                    <button
-                        onClick={fillDemo}
-                        className="w-full mb-5 px-4 py-2.5 rounded-xl border border-violet-500/30 bg-violet-500/10 text-violet-300 text-xs font-medium hover:bg-violet-500/20 transition-colors text-left flex items-center gap-2"
-                    >
-                        <Lock className="h-3.5 w-3.5 flex-shrink-0" />
-                        <span>Demo: <code className="bg-white/10 px-1.5 py-0.5 rounded text-violet-200">admin@nexcv.vn</code> / <code className="bg-white/10 px-1.5 py-0.5 rounded text-violet-200">admin123</code></span>
-                    </button>
 
                     {/* Error */}
                     {error && (

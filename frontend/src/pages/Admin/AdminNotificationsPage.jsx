@@ -4,7 +4,7 @@ import {
   Bell, CheckCircle2, Info, AlertTriangle, 
   Trash2, MailOpen, Clock, Search, Filter
 } from 'lucide-react'
-import EmptyState from '@/components/ui/EmptyState'
+import EmptyState from '@/components/common/EmptyState'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { adminService } from '@/services/adminService'
@@ -25,7 +25,8 @@ export default function AdminNotificationsPage() {
         // Đồng bộ xuống localStorage để các component khác dùng được
         localStorage.setItem("nexcv_mock_notifications", JSON.stringify(res.data));
       }
-    } catch {
+    } catch (err) {
+      console.debug('[AdminNotificationsPage.fetchNotifications] API lỗi, fallback localStorage:', err)
       const stored = localStorage.getItem("nexcv_mock_notifications");
       if (stored) {
         setNotifications(JSON.parse(stored));
@@ -64,7 +65,9 @@ export default function AdminNotificationsPage() {
     // Đồng bộ khi có thay đổi từ tab/component khác (fallback)
     const handleStorage = (e) => {
       if (e.key === "nexcv_mock_notifications") {
-        try { setNotifications(JSON.parse(e.newValue)); } catch { /* ignore */ }
+        try { setNotifications(JSON.parse(e.newValue)); } catch (err) {
+          console.debug('[AdminNotificationsPage.handleStorage] Lỗi parse storage event:', err)
+        }
       }
     };
     window.addEventListener("storage", handleStorage);
@@ -91,7 +94,9 @@ export default function AdminNotificationsPage() {
     try {
       await adminService.markNotificationRead(id);
       fetchNotifications(); // Sync lại từ server để đồng bộ hoàn toàn
-    } catch { /* silent */ }
+    } catch (err) {
+      console.error('[AdminNotificationsPage.markRead] Lỗi API đánh dấu đã đọc:', err)
+    }
   }
 
   const markAllRead = async () => {
@@ -102,7 +107,9 @@ export default function AdminNotificationsPage() {
     try {
       await adminService.markAllNotificationsRead();
       fetchNotifications(); // Sync lại từ server để đồng bộ hoàn toàn
-    } catch { /* silent */ }
+    } catch (err) {
+      console.error('[AdminNotificationsPage.markAllRead] Lỗi API đánh dấu tất cả đã đọc:', err)
+    }
   }
 
   const deleteNotif = async (id) => {
@@ -112,7 +119,9 @@ export default function AdminNotificationsPage() {
     try {
       await adminService.deleteNotification(id);
       fetchNotifications(); // Sync lại từ server
-    } catch { /* silent */ }
+    } catch (err) {
+      console.error('[AdminNotificationsPage.deleteNotif] Lỗi API xóa thông báo:', err)
+    }
   }
 
   const filtered = notifications.filter(n => {

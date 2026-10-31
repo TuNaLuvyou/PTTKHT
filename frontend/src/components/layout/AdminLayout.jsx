@@ -221,8 +221,9 @@ export default function AdminLayout() {
             } else if (res?.data) {
                 setPendingJobsCount(res.data.length);
             }
-        } catch { /* ignore */
-            const localStr = localStorage.getItem("nexcv_mock_jobs");
+        } catch (err) {
+          console.debug('[AdminLayout.fetchPendingJobsCount] Không lấy được số job pending:', err)
+          const localStr = localStorage.getItem("nexcv_mock_jobs");
             if (localStr) {
                 try {
                     const jobs = JSON.parse(localStr);
@@ -258,8 +259,8 @@ export default function AdminLayout() {
                     return merged;
                 });
             }
-        } catch {
-            // API lỗi → vẫn giữ dữ liệu từ localStorage (bước 1)
+        } catch (err) {
+          console.debug('[AdminLayout.fetchNotifications] API lỗi, giữ dữ liệu localStorage:', err)
         }
     }, []);
 
@@ -304,7 +305,9 @@ export default function AdminLayout() {
         const loadFromStorage = () => {
             const stored = localStorage.getItem("nexcv_mock_notifications");
             if (stored) {
-                try { setNotifications(JSON.parse(stored)); } catch { /* ignore */ }
+                try { setNotifications(JSON.parse(stored)); } catch (err) {
+                  console.debug('[AdminLayout.loadFromStorage] Lỗi parse localStorage notifications:', err)
+                }
             }
         };
         loadFromStorage();
@@ -325,7 +328,9 @@ export default function AdminLayout() {
         // Fallback: lắng nghe storage event (cross-tab)
         const handleStorage = (e) => {
             if (e.key === "nexcv_mock_notifications") {
-                try { setNotifications(JSON.parse(e.newValue)); } catch { /* ignore */ }
+                try { setNotifications(JSON.parse(e.newValue)); } catch (err) {
+                  console.debug('[AdminLayout.handleStorage] Lỗi parse storage event notifications:', err)
+                }
             }
         };
         window.addEventListener("storage", handleStorage);
@@ -347,7 +352,9 @@ export default function AdminLayout() {
         localStorage.setItem("nexcv_mock_notifications", JSON.stringify(updated))
         try {
             await adminService.markNotificationRead(id);
-        } catch { /* silent */ }
+        } catch (err) {
+          console.error('[AdminLayout.handleMarkRead] Lỗi đánh dấu thông báo đã đọc:', err)
+        }
     }
 
     const handleLogout = () => { logout(); navigate('/admin/login') }

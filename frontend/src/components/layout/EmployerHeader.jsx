@@ -80,14 +80,6 @@ export default function EmployerHeader() {
       : "bg-white text-violet-900 hover:bg-white/90"
   );
 
-  // Violet outline (Đăng tin)
-  const btnVioletOutlineCls = cn(
-    "flex items-center gap-1.5 px-4 py-[7px] rounded-lg text-sm font-semibold transition-all duration-200 border-[1.5px]",
-    isSolid
-      ? "text-violet-600 border-purple-200 hover:bg-purple-50"
-      : "text-white border-white/50 hover:bg-white/15"
-  );
-
   // User dropdown trigger
   const userBtnCls = cn(
     "flex items-center gap-2 px-2 py-1 rounded-lg border-none bg-transparent cursor-pointer transition-colors duration-200",
@@ -96,7 +88,7 @@ export default function EmployerHeader() {
 
   const avatarCls = cn(
     "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0",
-    isSolid ? "bg-indigo-50 text-blue-700" : "bg-white/15 text-white"
+    isSolid ? "bg-purple-50 text-purple-700" : "bg-white/15 text-white"
   );
 
   const roleTagCls = cn(
@@ -120,7 +112,7 @@ export default function EmployerHeader() {
 
           {/* Logo */}
           <Logo
-            to="/employer"
+            to={isAuthenticated ? "/employer/dashboard" : "/employer"}
             iconBg={isSolid ? "bg-violet-600" : "bg-white/15"}
             iconColor="text-white"
             textColor={isSolid ? "text-slate-900" : "text-white"}
@@ -146,11 +138,6 @@ export default function EmployerHeader() {
           <div className="hidden md:flex items-center gap-2.5 ml-auto">
             {isAuthenticated ? (
               <>
-                <Link to="/employer/jobs/new" className={btnVioletOutlineCls}>
-                  <PlusCircle className="w-3.5 h-3.5" />
-                  Đăng tin
-                </Link>
-
                 {/* User dropdown */}
                 <UserDropdown
                   user={user}

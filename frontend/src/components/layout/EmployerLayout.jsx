@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import EmployerHeader from './EmployerHeader'
 import Footer from './Footer'
-import Skeleton from '@/components/ui/Skeleton'
+import Skeleton from '@/components/common/Skeleton'
 
 // Route công khai — không cần đăng nhập
 const PUBLIC_ROUTES = [

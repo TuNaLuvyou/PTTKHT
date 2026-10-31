@@ -81,16 +81,22 @@ export default function Footer() {
             <h4 className="text-sm font-semibold text-white mb-4">Liên hệ</h4>
             <ul className="space-y-2.5">
               {[
-                { icon: MapPin, text: '123 Nguyễn Văn Linh, Q7, TP.HCM' },
-                { icon: Phone, text: '0901 234 567' },
-                { icon: Mail, text: 'support@nexcv.vn' },
-                { icon: Clock, text: 'T2 - T6: 8:00 - 18:00' },
+                { icon: MapPin, text: '1 Man Thiện, Tăng Nhơn Phú, TP.HCM' },
+                { icon: Phone, text: '0564 493 517', href: 'tel:0564493517' },
+                { icon: Mail, text: 'thd1522005@gmail.com', href: 'mailto:thd1522005@gmail.com' },
+                { icon: Clock, text: 'T2 - T6: 9:00 - 17:00' },
               ].map(item => {
                 const IconComp = item.icon
                 return (
                   <li key={item.text} className="flex items-start gap-2 text-sm text-slate-500">
                     <IconComp size={14} className="mt-0.5 shrink-0 text-slate-600" />
-                    <span>{item.text}</span>
+                    {item.href ? (
+                      <a href={item.href} className="hover:text-white transition-colors">
+                        {item.text}
+                      </a>
+                    ) : (
+                      <span>{item.text}</span>
+                    )}
                   </li>
                 )
               })}

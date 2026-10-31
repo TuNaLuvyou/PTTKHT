@@ -1,20 +1,3 @@
-# ============================================================
-# NexCV Backend (Express) — Database server only
-# ============================================================
-# This compose file starts ONLY the PostgreSQL database server.
-# The backend itself is NOT containerised — run it on the host with:
-#
-#   npm run dev
-#
-# Usage:
-#   docker compose up -d        # start the database
-#   docker compose down         # stop it (data volume is kept)
-#   docker compose down -v      # stop it and DELETE the data
-#
-# Connection string (see .env → DATABASE_URL):
-#   postgresql://nexcvd:nexcvd_secret@localhost:5442/nexcvd?schema=public
-# ============================================================
-
 services:
   db:
     image: postgres:16-alpine
