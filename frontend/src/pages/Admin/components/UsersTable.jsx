@@ -1,5 +1,5 @@
 import { UserX, UserCheck, Eye, Trash2, Shield, Building2, MapPin, Clock, Mail, Phone, Briefcase, FileText, Users, User, CircleCheck, CircleX, CircleAlert, Loader2 } from 'lucide-react'
-import EmptyState from '@/components/ui/EmptyState'
+import EmptyState from '@/components/common/EmptyState'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { useState } from 'react'
-import { SkeletonCard } from '@/components/ui/Skeleton'
+import { SkeletonCard } from '@/components/common/Skeleton'
 
 const STATUS_STYLE = {
   active:  { label: 'Hoạt động', bg: '#ECFDF5', text: '#059669', border: '#A7F3D0', icon: CircleCheck },

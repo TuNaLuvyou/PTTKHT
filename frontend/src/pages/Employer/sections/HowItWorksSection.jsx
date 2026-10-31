@@ -1,34 +1,43 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { FileText, ClipboardList, Bot, Target } from "lucide-react";
+import { Building2, ClipboardList, Bot, Target } from "lucide-react";
 
 const STEPS = [
-  { num: "01", icon: FileText, title: "Đăng ký tài khoản", desc: "Tạo tài khoản nhà tuyển dụng miễn phí trong 2 phút với thông tin công ty." },
-  { num: "02", icon: ClipboardList, title: "Đăng tin tuyển dụng", desc: "Tạo tin tuyển dụng chi tiết với mô tả công việc và yêu cầu kỹ năng." },
-  { num: "03", icon: Bot, title: "AI lọc hồ sơ", desc: "Hệ thống AI tự động chấm điểm và xếp hạng CV theo mức độ phù hợp." },
-  { num: "04", icon: Target, title: "Tuyển được người phù hợp", desc: "Liên hệ và phỏng vấn những ứng viên chất lượng nhất — nhanh hơn bao giờ hết." },
+  { num: "01", icon: Building2, title: "Đăng ký tài khoản" },
+  { num: "02", icon: ClipboardList, title: "Đăng tin tuyển dụng" },
+  { num: "03", icon: Bot, title: "AI chấm điểm & xếp hạng" },
+  { num: "04", icon: Target, title: "Phỏng vấn ứng viên" },
 ];
 
 export function HowItWorksSection() {
   return (
-    <section className="section" style={{ backgroundColor: "var(--bg-subtle)" }}>
+    <section className="section bg-[#F8FAFC]">
       <div className="container-app">
-        <div style={{ textAlign: "center", marginBottom: 32 }} className="md:mb-12">
-          <h2 style={{ fontSize: 24, fontWeight: 800, color: "var(--text-primary)", marginBottom: 8 }} className="md:text-[28px]">Bắt đầu tuyển dụng chỉ với 4 bước</h2>
-          <p style={{ color: "var(--text-secondary)", fontSize: 15 }}>Đơn giản, nhanh chóng và hiệu quả</p>
+        <div className="text-center mb-8">
+          <h2 className="text-2xl sm:text-3xl font-black text-[#0F172A] mb-1">
+            Quy trình tuyển dụng 4 bước
+          </h2>
+          <p className="text-slate-500 text-sm">
+            Nhanh chóng, chính xác và tiết kiệm thời gian cho doanh nghiệp
+          </p>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 24 }}>
-          {STEPS.map((step) => (
-            <Card key={step.num} style={{ border: "1.5px solid var(--border)", borderRadius: 16, textAlign: "center", position: "relative", overflow: "hidden" }}>
-              <CardContent style={{ padding: "28px 24px" }}>
-                <div style={{ width: 56, height: 56, borderRadius: 16, backgroundColor: "#EEF2FF", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", color: "#1549B8" }}>
-                  <step.icon size={26} />
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {STEPS.map((step) => {
+            const StepIcon = step.icon;
+            return (
+              <div
+                key={step.num}
+                className="bg-white rounded-2xl p-5 text-center shadow-xs hover:shadow-md transition-all flex flex-col items-center justify-center group"
+              >
+                <div className="w-12 h-12 bg-purple-50 text-[#7C3AED] rounded-2xl flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                  <StepIcon size={24} />
                 </div>
-                <div style={{ position: "absolute", top: 16, right: 16, fontSize: 32, fontWeight: 900, color: "var(--border)", lineHeight: 1 }}>{step.num}</div>
-                <h3 style={{ fontWeight: 700, fontSize: 16, color: "var(--text-primary)", marginBottom: 8 }}>{step.title}</h3>
-                <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.6 }}>{step.desc}</p>
-              </CardContent>
-            </Card>
-          ))}
+                <div className="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-1">
+                  Bước {step.num}
+                </div>
+                <h3 className="font-bold text-[#0F172A] text-sm sm:text-base">{step.title}</h3>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

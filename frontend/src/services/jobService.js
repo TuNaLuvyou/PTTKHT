@@ -3,8 +3,11 @@ import api from "./api";
 // ─── Job Service ───────────────────────────────────────────────────────────────
 export const jobService = {
   /**
-   * Lấy danh sách công việc
-   * @param {{ keyword?, location?, category?, level?, type?, page?, limit? }} params
+   * Lấy danh sách công việc (có lọc, phân trang).
+   * Được gọi từ: CandidateJobsPage (ứng viên), AdminJobsPage, EmployerJobsPage.
+   * Trả về: { data: Job[], total: number } — danh sách công việc và tổng số bản ghi.
+   * @param {{ keyword?, location?, category?, level?, type?, page?, limit?, sort? }} params
+   * @returns {Promise<{ data: object[], total: number }>}
    */
   async getJobs(params = {}) {
     const USE_MOCK = import.meta.env.VITE_USE_MOCK === "true";
@@ -56,7 +59,11 @@ export const jobService = {
         salary: j.salary_min ? `${(j.salary_min/1000000)} - ${(j.salary_max/1000000)} triệu` : 'Thỏa thuận',
         tags: j.required_skills || [],
       }));
-      return { data: formatted, total: formatted.length };
+      const page = Number(params.page) || 1;
+      const limit = Number(params.limit) || 10;
+      const total = formatted.length;
+      const paginated = formatted.slice((page - 1) * limit, page * limit);
+      return { data: paginated, total, page, limit };
     }
     const query = new URLSearchParams(params).toString();
     const res = await api.get(`/jobs?${query}`);
@@ -73,8 +80,11 @@ export const jobService = {
   },
 
   /**
-   * Lấy chi tiết công việc
+   * Lấy chi tiết một công việc theo ID.
+   * Được gọi từ: JobDetailPage (chi tiết tin tuyển dụng).
+   * Trả về: Job object — chi tiết công việc (id, title, description, salary, requirements, benefits, ...).
    * @param {string|number} id
+   * @returns {Promise<object>}
    */
   async getJob(id) {
     const USE_MOCK = import.meta.env.VITE_USE_MOCK === "true";
@@ -109,9 +119,12 @@ export const jobService = {
   },
 
   /**
-   * Ứng tuyển công việc
+   * Nộp đơn ứng tuyển vào một công việc.
+   * Được gọi từ: JobDetailPage (nút Ứng tuyển).
+   * Trả về: { message: string } — thông báo kết quả ứng tuyển.
    * @param {string} jobId
    * @param {{ cvId?, coverLetter? }} data
+   * @returns {Promise<{ message: string }>}
    */
   async applyJob(jobId, data = {}) {
     const USE_MOCK = import.meta.env.VITE_USE_MOCK === "true";
@@ -158,8 +171,11 @@ export const jobService = {
   },
 
   /**
-   * Lưu / bỏ lưu công việc
+   * Lưu / bỏ lưu công việc (toggle bookmark).
+   * Được gọi từ: CandidateJobsPage, JobDetailPage (nút Lưu).
+   * Trả về: { saved: boolean } — trạng thái lưu hiện tại.
    * @param {string} jobId
+   * @returns {Promise<{ saved: boolean }>}
    */
   async toggleSaveJob(jobId) {
     const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
@@ -182,7 +198,10 @@ export const jobService = {
   },
 
   /**
-   * Lấy danh sách việc làm đã lưu
+   * Lấy danh sách công việc đã lưu của user.
+   * Được gọi từ: SavedTab (trong Profile của ứng viên).
+   * Trả về: Job[] — danh sách công việc đã bookmark.
+   * @returns {Promise<object[]>}
    */
   async getSavedJobs() {
     const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
@@ -205,14 +224,20 @@ export const jobService = {
   },
 
   /**
-   * Lấy danh sách danh mục công việc
+   * Lấy danh sách danh mục công việc.
+   * Được gọi từ: CandidateJobsPage (bộ lọc phân loại).
+   * Trả về: Category[] — danh sách các category (it, design, marketing, ...).
+   * @returns {Promise<object[]>}
    */
   async getCategories() {
     return api.get("/jobs/categories");
   },
 
   /**
-   * Lấy danh sách công việc đã ứng tuyển
+   * Lấy danh sách công việc đã ứng tuyển của user.
+   * Được gọi từ: AppliedTab (trong Profile của ứng viên).
+   * Trả về: Application[] — danh sách đơn ứng tuyển kèm thông tin công việc.
+   * @returns {Promise<object[]>}
    */
   async getAppliedJobs() {
     const USE_MOCK = import.meta.env.VITE_USE_MOCK === "true";
@@ -247,9 +272,12 @@ export const jobService = {
   },
 
   /**
-   * Lấy danh sách công việc gợi ý
+   * Lấy danh sách công việc gợi ý dựa trên vai trò (role).
+   * Được gọi từ: HomePage (khuyến nghị công việc cho ứng viên).
+   * Trả về: { data: Job[], matched: boolean } — danh sách gợi ý và có khớp role hay không.
    * @param {string[]} roles
    * @param {number} limit
+   * @returns {Promise<{ data: object[], matched: boolean }>}
    */
   async getRecommendedJobs(roles = [], limit = 5) {
     const allJobs = []
@@ -269,7 +297,9 @@ export const jobService = {
             allJobs.push(job)
           }
         }
-      } catch {}
+      } catch {
+        // Continue searching other tags if one query fails
+      }
       
       if (allJobs.length >= limit) break
     }
@@ -338,6 +368,11 @@ const ROLE_KEYWORD_MAP = {
   'kiểm thử': 'Tester',
 }
 
+/**
+ * Chuuyển đổi tên vai trò (role) thành keyword tìm kiếm việc làm.
+ * @param {string} role
+ * @returns {string|null}
+ */
 export function normalizeRoleToKeyword(role) {
   if (!role) return null
   const lower = role.toLowerCase().trim()

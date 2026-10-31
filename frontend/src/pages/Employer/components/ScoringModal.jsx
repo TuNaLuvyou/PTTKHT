@@ -1,4 +1,4 @@
-import { Sparkles, FileText, RefreshCw } from 'lucide-react'
+import { Bot, FileText, RefreshCw } from 'lucide-react'
 
 export default function ScoringModal({
   show,
@@ -25,7 +25,7 @@ export default function ScoringModal({
         {/* Header */}
         <div className="p-[20px_24px] border-b border-border flex justify-between items-center">
           <h3 className="m-0 text-lg text-[#0F172A] flex items-center gap-1.5">
-            <Sparkles size={18} className="text-pink-500" /> Chấm điểm CV Bằng AI
+            <Bot size={18} className="text-purple-600" /> Chấm điểm CV Bằng AI
           </h3>
           <button
             onClick={onClose}

@@ -1,14 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/context/AuthContext";
-import { Sparkles, Bot, ArrowRight } from "lucide-react";
+import { Bot, ArrowRight, CheckCircle2 } from "lucide-react";
 
 const SCORE_BARS = [
   { label: "Kỹ năng phù hợp", pct: 94, color: "#34D399" },
-  { label: "Kinh nghiệm", pct: 90, color: "#60A5FA" },
-  { label: "Học vấn", pct: 88, color: "#A78BFA" },
-  { label: "Từ khóa ATS", pct: 92, color: "#FCD34D" },
+  { label: "Kinh nghiệm chuyên môn", pct: 90, color: "#A78BFA" },
+  { label: "Học vấn & Bằng cấp", pct: 88, color: "#818CF8" },
+  { label: "Độ chuẩn xác định dạng ATS", pct: 92, color: "#FCD34D" },
 ];
 
 export function AIPromoSection() {
@@ -16,54 +15,79 @@ export function AIPromoSection() {
   const { isAuthenticated } = useAuth();
 
   return (
-    <section className="section">
+    <section className="section bg-white">
       <div className="container-app">
-        <div style={{ background: "linear-gradient(135deg, #1E1B4B 0%, #312E81 50%, #4C1D95 100%)", borderRadius: 24, padding: "clamp(32px, 5vw, 56px)", position: "relative", overflow: "hidden", display: "flex", gap: 40, alignItems: "center", flexWrap: "wrap" }}>
-          <div style={{ position: "absolute", top: -60, right: -60, width: 240, height: 240, borderRadius: "50%", background: "rgba(124,58,237,0.2)", pointerEvents: "none" }} />
+        <div className="rounded-3xl bg-linear-to-br from-[#0F172A] via-[#1E1B4B] to-[#4C1D95] p-8 md:p-10 flex flex-col md:flex-row gap-8 items-center relative overflow-hidden shadow-xl text-white">
+          <div className="absolute top-0 right-0 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
 
-          <div style={{ flex: 1, minWidth: 280, position: "relative" }}>
-            <Badge style={{ backgroundColor: "rgba(124,58,237,0.2)", color: "#C4B5FD", border: "1px solid rgba(124,58,237,0.3)", marginBottom: 16 }}>
-              <Bot className="inline-block h-3.5 w-3.5 mr-1" />AI-Powered CV Scoring
-            </Badge>
-            <h2 style={{ fontSize: "clamp(24px, 3vw, 36px)", fontWeight: 800, color: "white", lineHeight: 1.2, marginBottom: 16 }}>
-              Lọc ứng viên thông minh<br />với AI chấm điểm CV
+          {/* Left content */}
+          <div className="flex-1 relative z-10">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/20 border border-purple-400/30 text-purple-200 text-xs font-semibold mb-3">
+              <Bot className="h-3.5 w-3.5" />
+              <span>AI Candidate Matching</span>
+            </div>
+
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black mb-2 leading-tight">
+              Lọc ứng viên thông minh
+              <br />
+              với AI chấm điểm CV
             </h2>
-            <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 15, lineHeight: 1.7, marginBottom: 24 }}>
-              AI của NexCV tự động phân tích CV và cho điểm theo 5 tiêu chí — giúp bạn tìm ứng viên phù hợp nhất trong vài giây.
+            <p className="text-slate-300 text-sm md:text-base mb-6 max-w-lg">
+              Tự động phân tích và xếp hạng hồ sơ theo mức độ tương thích với JD trong 30 giây.
             </p>
-            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-              <Button size="lg" onClick={() => navigate(isAuthenticated ? "/employer/dashboard" : "/employer/register")}
-                style={{ background: "white", color: "#1549B8", fontWeight: 700 }}>
-                <Sparkles className="h-4 w-4" /> {isAuthenticated ? "Vào Dashboard" : "Dùng thử miễn phí"}
+
+            <div className="flex flex-wrap gap-3">
+              <Button
+                size="lg"
+                onClick={() => navigate(isAuthenticated ? "/employer/dashboard" : "/employer/register")}
+                className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold h-11 px-6 rounded-xl shadow-md cursor-pointer"
+              >
+                <span>{isAuthenticated ? "Vào Dashboard" : "Dùng thử miễn phí"}</span>
               </Button>
               {!isAuthenticated && (
-                <Button size="lg" variant="outline" onClick={() => navigate("/employer/login")}
-                  style={{ borderColor: "rgba(255,255,255,0.3)", color: "white", backgroundColor: "transparent" }}>
-                  Đăng nhập <ArrowRight className="inline-block h-4 w-4 ml-1" />
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={() => navigate("/employer/login")}
+                  className="border-white/30 text-white bg-white/10 hover:bg-white/20 hover:text-white font-semibold h-11 px-5 rounded-xl cursor-pointer"
+                >
+                  <span>Đăng nhập</span>
+                  <ArrowRight className="h-4 w-4 ml-1.5" />
                 </Button>
               )}
             </div>
           </div>
 
-          {/* Score preview */}
-          <div style={{ width: 280, backgroundColor: "rgba(255,255,255,0.07)", backdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 16, padding: 24, flexShrink: 0 }}>
-            <div style={{ textAlign: "center", marginBottom: 20 }}>
-              <div style={{ width: 80, height: 80, borderRadius: "50%", border: "4px solid #60A5FA", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 8px", backgroundColor: "rgba(96,165,250,0.2)" }}>
-                <span style={{ fontSize: 28, fontWeight: 800, color: "white" }}>91</span>
+          {/* Right Preview Card */}
+          <div className="w-full md:w-80 bg-white/10 backdrop-blur-md rounded-2xl p-5 shrink-0 shadow-lg border border-white/10">
+            <div className="text-center mb-4">
+              <div className="w-16 h-16 mx-auto rounded-full border-4 border-purple-400 bg-purple-500/20 flex items-center justify-center mb-1.5">
+                <span className="text-2xl font-black text-white">94</span>
               </div>
-              <div style={{ fontSize: 13, color: "#93C5FD", fontWeight: 600 }}>Điểm phù hợp — Nguyễn Văn An</div>
+              <p className="text-purple-200 text-xs font-bold">Điểm tương thích — Nguyễn Văn An</p>
             </div>
-            {SCORE_BARS.map((item) => (
-              <div key={item.label} style={{ marginBottom: 10 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "rgba(255,255,255,0.7)", marginBottom: 4 }}>
-                  <span>{item.label}</span>
-                  <span style={{ fontWeight: 600, color: "white" }}>{item.pct}%</span>
+
+            <div className="space-y-2">
+              {SCORE_BARS.map((item) => (
+                <div key={item.label}>
+                  <div className="flex justify-between text-xs mb-1 text-slate-200">
+                    <span>{item.label}</span>
+                    <span className="font-bold text-white">{item.pct}%</span>
+                  </div>
+                  <div className="h-1.5 bg-white/20 rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all"
+                      style={{ width: `${item.pct}%`, backgroundColor: item.color }}
+                    />
+                  </div>
                 </div>
-                <div className="progress-bar">
-                  <div className="progress-bar-fill" style={{ width: `${item.pct}%`, background: item.color }} />
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
+
+            <div className="mt-4 pt-2.5 flex items-center gap-1.5 text-[11px] text-emerald-300 font-medium">
+              <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+              <span>Đạt tiêu chuẩn phỏng vấn trực tiếp</span>
+            </div>
           </div>
         </div>
       </div>

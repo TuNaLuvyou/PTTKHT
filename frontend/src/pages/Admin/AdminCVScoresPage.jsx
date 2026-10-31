@@ -6,11 +6,11 @@ import {
   Briefcase, Eye, AlertTriangle,
   RefreshCw
 } from 'lucide-react'
-import EmptyState from '@/components/ui/EmptyState'
+import EmptyState from '@/components/common/EmptyState'
 import { connectSocket, onDashboardUpdateNeeded } from '../../services/socket.js'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import Spinner from '@/components/ui/Spinner'
+import Spinner from '@/components/common/Spinner'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
 // API base URL for debugging display

@@ -1,21 +1,28 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { authService } from '../../services/authService'
-import { Building, Mail, Phone, Globe, Briefcase, Camera, CheckCircle2, Loader2, Save, AlertCircle } from 'lucide-react'
+import { Building, Mail, Phone, Globe, Briefcase, Camera, CheckCircle2, Loader2, Save, AlertCircle, FileText } from 'lucide-react'
 
-function Field({ label, required, children, icon: Icon }) {
+function Field({ label, required, children, icon: Icon, error }) {
   return (
-    <div className="mb-5">
-      <label className="flex items-center gap-1.5 text-sm font-semibold text-slate-900 mb-2">
-        {Icon && <Icon size={16} className="text-slate-400" />}
-        {label} {required && <span className="text-red-500">*</span>}
+    <div className="space-y-1.5">
+      <label className="flex items-center gap-1.5 text-xs font-bold text-slate-700 uppercase tracking-wider">
+        {Icon && <Icon size={14} className="text-slate-400" />}
+        <span>{label}</span>
+        {required && <span className="text-red-500">*</span>}
       </label>
       {children}
+      {error && (
+        <div className="flex items-center gap-1 mt-1 text-xs text-red-500">
+          <AlertCircle size={12} />
+          <span>{error}</span>
+        </div>
+      )}
     </div>
   )
 }
 
-const inputStyle = "w-full px-3.5 py-3 border-2 border-slate-200 rounded-xl text-sm font-inherit text-slate-900 box-border outline-none transition-all bg-[#F8FAFC] focus:border-[#1549B8] focus:bg-white"
+const inputStyle = "w-full px-3.5 py-2.5 border-2 border-slate-200 rounded-xl text-sm outline-none transition-all bg-white focus:border-[#7C3AED]"
 
 export default function EmployerProfilePage() {
   const { user, updateUser } = useAuth()
@@ -47,7 +54,7 @@ export default function EmployerProfilePage() {
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(value.trim())) {
-      setEmailError('Email không đúng định dạng (VD: contact@company.com)')
+      setEmailError('Email không hợp lệ (VD: contact@company.com)')
       return false
     }
     setEmailError('')
@@ -72,10 +79,9 @@ export default function EmployerProfilePage() {
       setWebsiteError('')
       return true
     }
-    // Accept URLs with or without protocol
     const urlRegex = /^(https?:\/\/)?([\w-]+\.)+[a-z]{2,}(\/\S*)?$/i
     if (!urlRegex.test(value.trim())) {
-      setWebsiteError('Website không đúng định dạng (VD: https://example.com)')
+      setWebsiteError('Website không đúng định dạng (VD: https://company.com)')
       return false
     }
     setWebsiteError('')
@@ -87,11 +93,10 @@ export default function EmployerProfilePage() {
       setPhoneError('')
       return true
     }
-    // Vietnamese phone: 0xxxxxxxxx (10 digits) or +84xxxxxxxxx (11 chars with +)
     const vnPhoneRegex = /^(0[3-9][0-9]{8,9}|\+84[3-9][0-9]{8,9})$/
     const cleaned = value.replace(/[\s.\-()]/g, '')
     if (!vnPhoneRegex.test(cleaned)) {
-      setPhoneError('Số điện thoại không đúng định dạng (VD: 0901234567 hoặc +84901234567)')
+      setPhoneError('Số điện thoại không đúng định dạng')
       return false
     }
     setPhoneError('')
@@ -161,15 +166,11 @@ export default function EmployerProfilePage() {
     if (form.companyWebsite.trim() && !validateWebsite(form.companyWebsite)) return alert('Vui lòng kiểm tra lại website')
     setSaving(true)
     try {
-      // Gọi authService để cập nhật
       const updatedUser = await authService.updateProfile({
         ...form,
-        role: 'employer' // Để backend/mock biết đây là employer
+        role: 'employer'
       })
-      
-      // Cập nhật lại context toàn cục
       updateUser(updatedUser)
-      
       setSuccess(true)
       setTimeout(() => setSuccess(false), 3000)
     } catch (err) {
@@ -180,139 +181,159 @@ export default function EmployerProfilePage() {
   }
 
   return (
-    <div className="px-4 py-8 max-w-200 mx-auto" style={{ fontFamily: "'Be Vietnam Pro', sans-serif" }}>
-      <div className="mb-8">
-        <h1 className="text-[28px] font-black text-slate-900 mb-2">Hồ sơ Công ty</h1>
-        <p className="text-[15px] text-slate-500">Quản lý thông tin hiển thị với ứng viên và trên các tin tuyển dụng.</p>
-      </div>
-
-      <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+    <div className="px-4 py-8 max-w-6xl mx-auto font-sans">
+      {/* 2-Column Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
-        <div className="flex items-center gap-4 mb-6 pb-6 border-b border-slate-100 flex-wrap">
-          <div
-            onClick={() => document.getElementById('logo-upload').click()}
-            className="w-25 h-25 rounded-3xl bg-[#EEF2FF] flex items-center justify-center text-[#1549B8] text-[32px] font-black relative cursor-pointer overflow-hidden border-2 border-dashed border-slate-200 shrink-0"
-          >
-            {logoPreview ? (
-              <img src={logoPreview} alt="Logo preview" className="w-full h-full object-cover" />
-            ) : (
-              form.companyName ? form.companyName.slice(0, 2).toUpperCase() : 'HR'
-            )}
-            
-            <div className="absolute bottom-0 left-0 right-0 h-7 bg-black/40 flex items-center justify-center text-white">
-              <Camera size={14} />
-            </div>
-
-            <input
-              id="logo-upload"
-              type="file"
-              accept="image/*"
-              onChange={handleLogoChange}
-              className="hidden"
-            />
-          </div>
-          <div>
-            <h3 className="text-lg font-extrabold text-slate-900 mb-1">Logo công ty</h3>
-            <p className="text-[13px] text-slate-400">Nhấp vào ô bên trái để tải ảnh lên. Định dạng JPG, PNG hoặc GIF.</p>
-          </div>
-        </div>
-
-        {/* Form Fields */}
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-5">
-          <Field label="Tên công ty" required icon={Building}>
-            <input
-              value={form.companyName}
-              onChange={e => handleChange('companyName', e.target.value)}
-              className={`${inputStyle} ${companyNameTouched && companyNameError ? 'border-red-500!' : ''}`}
-              placeholder="VD: Công ty TNHH NexCV"
-            />
-            {companyNameTouched && companyNameError && (
-              <div className="flex items-center gap-1 mt-1.5 text-xs text-red-500">
-                <AlertCircle size={12} /> {companyNameError}
-              </div>
-            )}
-          </Field>
-          <Field label="Lĩnh vực hoạt động" icon={Briefcase}>
-            <input
-              value={form.industry}
-              onChange={e => handleChange('industry', e.target.value)}
-              className={inputStyle}
-              placeholder="VD: Công nghệ thông tin, Tài chính..."
-            />
-          </Field>
-          <Field label="Email liên hệ" required icon={Mail}>
-            <input
-              value={form.email}
-              onChange={e => handleChange('email', e.target.value)}
-              className={`${inputStyle} ${emailTouched && emailError ? 'border-red-500!' : ''}`}
-              type="email"
-              placeholder="contact@company.com"
-            />
-            {emailTouched && emailError && (
-              <div className="flex items-center gap-1 mt-1.5 text-xs text-red-500">
-                <AlertCircle size={12} /> {emailError}
-              </div>
-            )}
-          </Field>
-          <Field label="Số điện thoại" icon={Phone}>
-            <input
-              value={form.phone}
-              onChange={e => handleChange('phone', e.target.value)}
-              className={`${inputStyle} ${phoneTouched && phoneError ? 'border-red-500!' : ''}`}
-              placeholder="0901234567"
-            />
-            {phoneTouched && phoneError && (
-              <div className="flex items-center gap-1 mt-1.5 text-xs text-red-500">
-                <AlertCircle size={12} /> {phoneError}
-              </div>
-            )}
-          </Field>
-          <div className="col-span-full">
-            <Field label="Website công ty" icon={Globe}>
-              <input
-                value={form.companyWebsite}
-                onChange={e => handleChange('companyWebsite', e.target.value)}
-                className={`${inputStyle} ${websiteTouched && websiteError ? 'border-red-500!' : ''}`}
-                placeholder="https://www.yourcompany.com"
-              />
-              {websiteTouched && websiteError && (
-                <div className="flex items-center gap-1 mt-1.5 text-xs text-red-500">
-                  <AlertCircle size={12} /> {websiteError}
-                </div>
+        {/* Column 1 (Left): Brand Card & Logo */}
+        <div className="lg:col-span-4 space-y-5 lg:sticky lg:top-24">
+          <div className="bg-white rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-200/80 flex flex-col items-center text-center">
+            {/* Logo Box */}
+            <div
+              onClick={() => document.getElementById('logo-upload').click()}
+              className="w-28 h-28 rounded-3xl bg-[#F5F3FF] flex items-center justify-center text-[#7C3AED] text-3xl font-black relative cursor-pointer overflow-hidden border-2 border-dashed border-purple-200 group transition-all hover:border-[#7C3AED]"
+              title="Nhấn để đổi logo"
+            >
+              {logoPreview ? (
+                <img src={logoPreview} alt="Logo preview" className="w-full h-full object-cover" />
+              ) : (
+                form.companyName ? form.companyName.slice(0, 2).toUpperCase() : 'HR'
               )}
-            </Field>
-          </div>
-          <div className="col-span-full">
-            <Field label="Mô tả công ty / Giới thiệu chung" icon={Building}>
-              <textarea
-                value={form.description}
-                onChange={e => handleChange('description', e.target.value)}
-                className={`${inputStyle} min-h-30 resize-y`}
-                placeholder="Giới thiệu về công ty, văn hóa, môi trường làm việc..."
+
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white transition-opacity">
+                <Camera size={18} />
+                <span className="text-[10px] font-bold mt-1">Đổi logo</span>
+              </div>
+
+              <input
+                id="logo-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleLogoChange}
+                className="hidden"
               />
-            </Field>
+            </div>
+
+            <h3 className="text-base font-bold text-slate-900 mt-4 line-clamp-1">
+              {form.companyName || 'Tên doanh nghiệp'}
+            </h3>
+
+            {form.industry && (
+              <span className="mt-1.5 text-xs font-semibold px-3 py-1 rounded-xl bg-purple-50 text-[#7C3AED]">
+                {form.industry}
+              </span>
+            )}
+
+            <p className="text-xs text-slate-400 mt-3">
+              Nhấp vào ảnh để tải logo mới (PNG, JPG dưới 2MB).
+            </p>
           </div>
         </div>
 
-        {/* Footer Actions */}
-        <div className="mt-6 flex items-center justify-end pt-6 border-t border-slate-100 gap-3">
-          {success && (
-            <div className="text-sm text-emerald-600 font-semibold flex items-center gap-1.5">
-              <CheckCircle2 size={18} /> Đã cập nhật thành công
+        {/* Column 2 (Right): Detail Information Form */}
+        <div className="lg:col-span-8">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-200/80 space-y-6">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-purple-50 text-[#7C3AED] flex items-center justify-center shrink-0">
+                <Building className="h-4 w-4" />
+              </div>
+              <h2 className="text-base font-bold text-slate-900">Thông tin doanh nghiệp</h2>
             </div>
-          )}
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className={`px-6 py-3 rounded-xl border-none text-white text-sm font-bold transition-all whitespace-nowrap bg-linear-to-r from-blue-700 to-blue-500 shadow-lg shadow-blue-500/30 ${
-              saving
-                ? 'opacity-70 cursor-not-allowed'
-                : 'cursor-pointer hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/40'
-            }`}
-          >
-            {saving ? <span className="inline-flex items-center gap-2"><Loader2 className="animate-spin" size={16} /> Đang lưu...</span> : <span className="inline-flex items-center gap-2"><Save size={16} /> Lưu thay đổi</span>}
-          </button>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Field label="Tên công ty" required icon={Building} error={companyNameTouched ? companyNameError : ''}>
+                <input
+                  value={form.companyName}
+                  onChange={e => handleChange('companyName', e.target.value)}
+                  className={`${inputStyle} ${companyNameTouched && companyNameError ? '!border-red-500' : ''}`}
+                  placeholder="VD: Công ty TNHH NexCV"
+                />
+              </Field>
+
+              <Field label="Lĩnh vực hoạt động" icon={Briefcase}>
+                <input
+                  value={form.industry}
+                  onChange={e => handleChange('industry', e.target.value)}
+                  className={inputStyle}
+                  placeholder="VD: Công nghệ thông tin, Tài chính..."
+                />
+              </Field>
+
+              <Field label="Email liên hệ" required icon={Mail} error={emailTouched ? emailError : ''}>
+                <input
+                  value={form.email}
+                  onChange={e => handleChange('email', e.target.value)}
+                  className={`${inputStyle} ${emailTouched && emailError ? '!border-red-500' : ''}`}
+                  type="email"
+                  placeholder="contact@company.com"
+                />
+              </Field>
+
+              <Field label="Số điện thoại" icon={Phone} error={phoneTouched ? phoneError : ''}>
+                <input
+                  value={form.phone}
+                  onChange={e => handleChange('phone', e.target.value)}
+                  className={`${inputStyle} ${phoneTouched && phoneError ? '!border-red-500' : ''}`}
+                  placeholder="0901234567"
+                />
+              </Field>
+
+              <div className="sm:col-span-2">
+                <Field label="Website công ty" icon={Globe} error={websiteTouched ? websiteError : ''}>
+                  <input
+                    value={form.companyWebsite}
+                    onChange={e => handleChange('companyWebsite', e.target.value)}
+                    className={`${inputStyle} ${websiteTouched && websiteError ? '!border-red-500' : ''}`}
+                    placeholder="https://www.yourcompany.com"
+                  />
+                </Field>
+              </div>
+
+              <div className="sm:col-span-2">
+                <Field label="Mô tả công ty" icon={FileText}>
+                  <textarea
+                    value={form.description}
+                    onChange={e => handleChange('description', e.target.value)}
+                    rows={5}
+                    className={`${inputStyle} resize-y min-h-[120px]`}
+                    placeholder="Giới thiệu về công ty, văn hóa và môi trường làm việc..."
+                  />
+                </Field>
+              </div>
+            </div>
+
+            {/* Actions (Zero separator) */}
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div>
+                {success && (
+                  <div className="text-xs font-bold text-emerald-700 bg-emerald-50 px-3.5 py-2 rounded-xl flex items-center gap-1.5">
+                    <CheckCircle2 size={16} /> Đã lưu thông tin thành công
+                  </div>
+                )}
+              </div>
+
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={saving}
+                className="w-full sm:w-auto h-11 px-7 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                {saving ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    Đang lưu...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-3.5 w-3.5" />
+                    Lưu thay đổi
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
         </div>
+
       </div>
     </div>
   )

@@ -37,3 +37,6 @@ lerna-debug.log*
 dist/
 build/
 *.js.map
+
+# ─── Agents ──────────────────────────────────────────
+.agents/

@@ -8,7 +8,7 @@ import { adminService } from '@/services/adminService'
 import { StatsRow, DashboardHeader } from './components/StatsCards'
 import { DonutChart, UserGrowthChart, RecentActivity } from './components/RecentActivity'
 import { connectSocket, onDashboardUpdateNeeded } from '@/services/socket'
-import Spinner from '@/components/ui/Spinner'
+import Spinner from '@/components/common/Spinner'
 
 export default function AdminDashboardPage() {
   const [data, setData] = useState(null)

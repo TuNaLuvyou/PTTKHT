@@ -74,11 +74,13 @@ function generateMockScore(fileName) {
 // ─── CV Service ────────────────────────────────────────────────────────────────
 export const cvService = {
   /**
-   * Upload và chấm điểm CV
+   * Upload file CV và gửi chấm điểm AI.
+   * Được gọi từ: CVUploadPage (trang CVScoring / cv-upload).
+   * Trả về: CVScoreResult — kết quả chấm điểm (overall, grade, categories, strengths, improvements, ...).
    * @param {File} file - PDF hoặc DOCX
    * @param {{ jobId?, jobTitle?, targetPosition? }} options
-   * @param {function} onProgress - callback(percent: number)
-   * @returns {Promise<CVScoreResult>}
+   * @param {function} onProgress - callback(percent: number) theo dõi tiến độ upload
+   * @returns {Promise<object>}
    */
   async scoreCV(file, options = {}, onProgress) {
     if (USE_MOCK) {
@@ -100,7 +102,7 @@ export const cvService = {
     // Use XMLHttpRequest for progress tracking
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest()
-      const token = localStorage.getItem('nexcv_token')
+      const token = localStorage.getItem('nexcv_candidate_token') || localStorage.getItem('nexcv_token')
       const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
 
       xhr.upload.addEventListener('progress', (e) => {
@@ -126,7 +128,10 @@ export const cvService = {
   },
 
   /**
-   * Lấy lịch sử CV đã chấm điểm
+   * Lấy danh sách CV đã chấm điểm của chính ứng viên.
+   * Được gọi từ: CVTab (trong Profile).
+   * Trả về: object[] — danh sách kết quả chấm điểm CV (id, fileName, overall, grade, scoredAt).
+   * @returns {Promise<object[]>}
    */
   async getMyCVs() {
     if (USE_MOCK) {
@@ -141,8 +146,11 @@ export const cvService = {
   },
 
   /**
-   * Lấy chi tiết một kết quả chấm điểm
+   * Lấy chi tiết một kết quả chấm điểm CV theo ID.
+   * Được gọi từ: CVTab / trang chi tiết điểm số CV.
+   * Trả về: object — chi tiết kết quả chấm điểm (analysis, categories, strengths, improvements).
    * @param {string|number} id
+   * @returns {Promise<object>}
    */
   async getCVScore(id) {
     if (USE_MOCK) {
@@ -153,8 +161,11 @@ export const cvService = {
   },
 
   /**
-   * Xóa CV khỏi lịch sử
+   * Xóa một kết quả chấm điểm CV khỏi lịch sử.
+   * Được gọi từ: CVTab (nút Xóa trên mỗi mục lịch sử).
+   * Trả về: { message: string } — thông báo xóa thành công.
    * @param {string|number} id
+   * @returns {Promise<{ message: string }>}
    */
   async deleteCVScore(id) {
     if (USE_MOCK) {
@@ -165,7 +176,10 @@ export const cvService = {
   },
 
   /**
-   * Lấy lịch sử chấm điểm CV của ứng viên
+   * Lấy lịch sử chấm điểm CV của ứng viên (alias của getMyCVs).
+   * Được gọi từ: CVTab, AdminCVScoresPage.
+   * Trả về: object[] — danh sách lịch sử chấm điểm.
+   * @returns {Promise<object[]>}
    */
   async getScoreHistory() {
     if (USE_MOCK) {
@@ -178,7 +192,11 @@ export const cvService = {
   },
 
   /**
-   * Tạo CV bằng Reactive Resume
+   * Lưu dữ liệu resume (Reactive Resume) lên server.
+   * Được gọi từ: CVBuilderPage (nút Lưu).
+   * Trả về: { id, ...data } — đối tượng resume đã lưu kèm ID.
+   * @param {object} data
+   * @returns {Promise<object>}
    */
   async saveResume(data) {
     if (USE_MOCK) {
@@ -190,6 +208,13 @@ export const cvService = {
       : api.post('/resumes', data)
   },
 
+  /**
+   * Lấy chi tiết một resume theo ID.
+   * Được gọi từ: CVBuilderPage (mở resume cũ chỉnh sửa).
+   * Trả về: object — nội dung resume (title, content, ...).
+   * @param {string|number} id
+   * @returns {Promise<object>}
+   */
   async getResume(id) {
     if (USE_MOCK) {
       await delay(400)
@@ -199,7 +224,11 @@ export const cvService = {
   },
 
   /**
-   * Lưu CV Builder data lên server
+   * Lưu dữ liệu CV Builder (drag-drop editor) lên server.
+   * Được gọi từ: CVBuilderPage (tự động lưu nháp).
+   * Trả về: { id, ...data } — dữ liệu CV Builder đã lưu.
+   * @param {object} data
+   * @returns {Promise<object>}
    */
   async saveCVBuilder(data) {
     if (USE_MOCK) {
@@ -211,6 +240,13 @@ export const cvService = {
       : api.post('/resumes', data)
   },
 
+  /**
+   * Lấy dữ liệu CV Builder theo ID.
+   * Được gọi từ: CVBuilderPage (tải bản nháp đã lưu).
+   * Trả về: object — dữ liệu CV Builder (title, content, ...).
+   * @param {string|number} id
+   * @returns {Promise<object>}
+   */
   async getCVBuilder(id) {
     if (USE_MOCK) {
       await delay(400)

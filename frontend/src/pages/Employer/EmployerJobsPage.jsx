@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { MapPin, Briefcase, BarChart3, DollarSign, Edit3, Users, CheckCircle2, PauseCircle, Trash2, Inbox, MoreHorizontal, Plus } from 'lucide-react'
-import EmptyState from '@/components/ui/EmptyState'
-import { SkeletonPage } from '@/components/ui/Skeleton'
+import EmptyState from '@/components/common/EmptyState'
+import { SkeletonPage } from '@/components/common/Skeleton'
 import { employerService } from '../../services/employerService'
 
 const STATUS_CONFIG = {
@@ -205,36 +205,33 @@ export default function EmployerJobsPage() {
 
   return (
     <div className="px-4 sm:px-6 py-8 max-w-[960px] mx-auto">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6 flex-wrap gap-3">
-        <div>
-          <h1 className="text-2xl font-black text-slate-900 mb-1">Tin tuyển dụng</h1>
-          <p className="text-sm text-slate-500">{jobs.length} tin đã đăng</p>
+      {/* Action & Filter bar */}
+      <div className="flex items-center justify-between gap-3 mb-6 flex-wrap">
+        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+          {[
+            { key: 'all', label: 'Tất cả', count: jobs.length },
+            { key: 'pending', label: 'Chờ duyệt', count: jobs.filter(j => j.status === 'pending').length },
+            { key: 'active', label: 'Đang tuyển', count: jobs.filter(j => j.status === 'active').length },
+            { key: 'draft', label: 'Bản nháp', count: jobs.filter(j => j.status === 'draft').length },
+            { key: 'expired', label: 'Hết hạn', count: jobs.filter(j => j.status === 'expired').length },
+            { key: 'closed', label: 'Đã đóng', count: jobs.filter(j => j.status === 'closed').length },
+          ].map(tab => (
+            <button key={tab.key} onClick={() => setFilterStatus(tab.key)}
+              className={`shrink-0 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+                filterStatus === tab.key
+                  ? 'bg-purple-100 text-[#7C3AED] font-bold'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}>
+              {tab.label} {tab.count > 0 && <span className="font-extrabold">({tab.count})</span>}
+            </button>
+          ))}
         </div>
-        <Link to="/employer/jobs/new" className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-700 to-blue-500 text-white rounded-xl font-bold text-sm shadow-lg shadow-blue-500/30 hover:opacity-90 transition-opacity no-underline">
-          <Plus size={16} /> Đăng tin mới
+        <Link
+          to="/employer/jobs/new"
+          className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl no-underline font-bold text-xs shadow-xs transition-all shrink-0 ml-auto"
+        >
+          <Plus size={15} /> Đăng tin mới
         </Link>
-      </div>
-
-      {/* Filter tabs - scrollable on mobile */}
-      <div className="flex gap-2 mb-5 -mx-4 px-4 overflow-x-auto pb-1 scrollbar-hide">
-        {[
-          { key: 'all', label: 'Tất cả', count: jobs.length },
-          { key: 'pending', label: 'Chờ duyệt', count: jobs.filter(j => j.status === 'pending').length },
-          { key: 'active', label: 'Đang tuyển', count: jobs.filter(j => j.status === 'active').length },
-          { key: 'draft', label: 'Bản nháp', count: jobs.filter(j => j.status === 'draft').length },
-          { key: 'expired', label: 'Hết hạn', count: jobs.filter(j => j.status === 'expired').length },
-          { key: 'closed', label: 'Đã đóng', count: jobs.filter(j => j.status === 'closed').length },
-        ].map(tab => (
-          <button key={tab.key} onClick={() => setFilterStatus(tab.key)}
-            className={`shrink-0 px-3.5 py-1.5 rounded-full text-sm font-semibold border transition-all whitespace-nowrap ${
-              filterStatus === tab.key
-                ? 'border-blue-500 bg-blue-50 text-blue-600'
-                : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'
-            }`}>
-            {tab.label} {tab.count > 0 && <span className="font-extrabold">({tab.count})</span>}
-          </button>
-        ))}
       </div>
 
       {loading ? (
@@ -244,11 +241,6 @@ export default function EmployerJobsPage() {
           icon={Inbox}
           title="Chưa có tin tuyển dụng"
           description="Hãy đăng tin đầu tiên để tìm ứng viên phù hợp"
-          action={
-            <Link to="/employer/jobs/new" className="inline-flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-sm">
-              <Plus size={16} /> Đăng tin ngay
-            </Link>
-          }
         />
       ) : (
         <div className="flex flex-col gap-3.5">

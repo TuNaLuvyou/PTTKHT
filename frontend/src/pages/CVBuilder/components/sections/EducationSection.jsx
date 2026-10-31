@@ -1,5 +1,4 @@
 import { Plus, Trash2, GraduationCap } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Section } from '../Section'
@@ -9,48 +8,52 @@ const EMPTY_EDUCATION = { school: '', degree: '', period: '', gpa: '' }
 
 export function EducationSection({ items, onChange }) {
   const update = (id, key, val) =>
-    onChange(cv => ({
+    onChange((cv) => ({
       ...cv,
-      education: cv.education.map(e => e.id === id ? { ...e, [key]: val } : e),
+      education: cv.education.map((e) => (e.id === id ? { ...e, [key]: val } : e)),
     }))
 
-  const remove = id =>
-    onChange(cv => ({ ...cv, education: cv.education.filter(e => e.id !== id) }))
+  const remove = (id) =>
+    onChange((cv) => ({ ...cv, education: cv.education.filter((e) => e.id !== id) }))
 
   const add = () =>
-    onChange(cv => ({ ...cv, education: [...cv.education, { id: uid(), ...EMPTY_EDUCATION }] }))
+    onChange((cv) => ({
+      ...cv,
+      education: [...cv.education, { id: uid(), ...EMPTY_EDUCATION }],
+    }))
 
   return (
     <Section title="Học vấn" icon={<GraduationCap className="h-4 w-4 text-[#1549B8]" />}>
-      {items.map(edu => (
-        <div key={edu.id} className="border border-[#E2E8F0] rounded-lg p-3 space-y-2 relative">
+      {items.map((edu) => (
+        <div key={edu.id} className="bg-[#F8FAFC] rounded-2xl p-4 space-y-2.5 relative">
           <button
+            type="button"
             onClick={() => remove(edu.id)}
-            className="absolute top-2 right-2 text-[#94A3B8] hover:text-red-500 cursor-pointer"
+            className="absolute top-3 right-3 text-slate-400 hover:text-rose-600 transition-colors cursor-pointer"
           >
-            <Trash2 className="h-3.5 w-3.5" />
+            <Trash2 className="h-4 w-4" />
           </button>
 
-          <div className="grid grid-cols-2 gap-2">
-            <div className="col-span-2 space-y-1">
-              <Label className="text-xs">Trường</Label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div className="sm:col-span-2 space-y-1">
+              <Label className="text-xs font-semibold text-slate-700">Trường / Viện đào tạo *</Label>
               <Input
                 value={edu.school}
-                onChange={e => update(edu.id, 'school', e.target.value)}
-                className="h-8 text-xs"
+                onChange={(e) => update(edu.id, 'school', e.target.value)}
+                className="h-8 text-xs rounded-xl bg-white border-slate-200 focus:border-[#1549B8] focus:ring-2 focus:ring-[#1549B8]/20"
               />
             </div>
             {[
-              { key: 'degree', label: 'Ngành học' },
-              { key: 'period', label: 'Thời gian' },
-              { key: 'gpa',    label: 'GPA' },
+              { key: 'degree', label: 'Ngành học / Bằng cấp' },
+              { key: 'period', label: 'Thời gian học' },
+              { key: 'gpa', label: 'GPA / Điểm số' },
             ].map(({ key, label }) => (
               <div key={key} className="space-y-1">
-                <Label className="text-xs">{label}</Label>
+                <Label className="text-xs font-semibold text-slate-700">{label}</Label>
                 <Input
                   value={edu[key]}
-                  onChange={e => update(edu.id, key, e.target.value)}
-                  className="h-8 text-xs"
+                  onChange={(e) => update(edu.id, key, e.target.value)}
+                  className="h-8 text-xs rounded-xl bg-white border-slate-200 focus:border-[#1549B8] focus:ring-2 focus:ring-[#1549B8]/20"
                 />
               </div>
             ))}
@@ -58,13 +61,14 @@ export function EducationSection({ items, onChange }) {
         </div>
       ))}
 
-      <Button
-        variant="outline" size="sm"
-        className="w-full gap-1.5 text-xs border-dashed border-[#1549B8]/40 text-[#1549B8] hover:bg-[#EEF2FF]"
+      <button
+        type="button"
         onClick={add}
+        className="w-full h-10 rounded-xl bg-[#EEF2FF] text-[#1549B8] text-xs font-bold hover:bg-[#E0E7FF] transition-colors flex items-center justify-center gap-1.5"
       >
-        <Plus className="h-3.5 w-3.5" />Thêm học vấn
-      </Button>
+        <Plus className="h-3.5 w-3.5" />
+        Thêm học vấn
+      </button>
     </Section>
   )
 }

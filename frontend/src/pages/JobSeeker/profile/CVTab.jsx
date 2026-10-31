@@ -1,15 +1,9 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
-import { Plus, Loader2, FileText, Eye, Trash2 } from 'lucide-react'
-import EmptyState from '@/components/ui/EmptyState'
+import { Plus, Loader2, FileText, FileEdit, FileCheck, Eye, Trash2 } from 'lucide-react'
+import { useAuth } from '@/context/AuthContext'
 import { cvService } from '@/services/cvService'
-import CVScoreModal from '@/components/CVScoreModal'
-
-const gradeVariant = { A: 'success', B: 'new', C: 'warning', D: 'destructive' }
+import CVScoreModal from '@/components/scoring/CVScoreModal'
 
 // Utility to fix font encoding issues if the backend saved UTF-8 as latin1
 function fixEncoding(str) {
@@ -17,7 +11,9 @@ function fixEncoding(str) {
   try {
     // If the string contains mojibake like "Nguyá»…n", escape and decodeURIComponent will fix it
     return decodeURIComponent(escape(str));
-  } catch {
+  }
+  // Defensive: chuỗi không đúng encoding → trả về nguyên bản
+  catch {
     return str; // Return original if not valid encoded string
   }
 }
@@ -37,6 +33,7 @@ function normalizeCV(item) {
 }
 
 export function CVTab() {
+  const { user } = useAuth()
   const [cvs, setCvs] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -46,13 +43,16 @@ export function CVTab() {
   const [deletingId, setDeletingId] = useState(null)   // id đang xóa
   const [confirmDeleteId, setConfirmDeleteId] = useState(null) // id chờ xác nhận
 
+  const draft = user?.cvBuilderData
+
   const fetchCVs = async () => {
     try {
       setLoading(true)
       setError(null)
       const data = await cvService.getMyCVs()
       setCvs(Array.isArray(data) ? data.map(normalizeCV) : [])
-    } catch {
+    } catch (err) {
+      console.error('[CVTab.fetchCVs] Lỗi tải danh sách CV:', err)
       setError('Không thể tải danh sách CV. Vui lòng thử lại sau.')
     } finally {
       setLoading(false)
@@ -76,9 +76,12 @@ export function CVTab() {
         overall: scoreData.overall ?? scoreData.score ?? cv.overall,
         grade: scoreData.grade || cv.grade,
         gradeLabel: scoreData.gradeLabel || cv.gradeLabel,
-      })    } catch {
+      })
+    } catch (err) {
+      console.error('[CVTab.handleViewCV] Lỗi xem chi tiết điểm CV:', err)
       // If detail fetch fails, show what we have
-      setSelectedCv({...cv,
+      setSelectedCv({
+        ...cv,
         categories: [],
         strengths: [],
         improvements: [],
@@ -93,7 +96,8 @@ export function CVTab() {
       setDeletingId(id)
       await cvService.deleteCVScore(id)
       setCvs(prev => prev.filter(cv => (cv._id || cv.id) !== id))
-    } catch {
+    } catch (err) {
+      console.error('[CVTab.handleDeleteCV] Lỗi xóa CV:', err)
       setError('Xóa thất bại. Vui lòng thử lại.')
     } finally {
       setDeletingId(null)
@@ -104,98 +108,153 @@ export function CVTab() {
   if (loading) {
     return (
       <div className="flex justify-center items-center py-16">
-        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        <Loader2 className="h-6 w-6 animate-spin text-[#1549B8]" />
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="text-center py-12 bg-destructive/5 rounded-xl border border-destructive/10">
-        <p className="text-destructive text-sm mb-3">{error}</p>
-        <Button variant="outline" size="sm" onClick={fetchCVs}>Thử lại</Button>
+      <div className="bg-white rounded-3xl px-6 py-12 text-center shadow-sm">
+        <p className="text-sm text-rose-600 mb-4">{error}</p>
+        <button
+          onClick={fetchCVs}
+          className="h-9 px-4 rounded-xl bg-[#EEF2FF] text-[#1549B8] text-sm font-semibold hover:bg-[#E0E7FF] transition-colors"
+        >
+          Thử lại
+        </button>
       </div>
     )
   }
 
   return (
-    <div className="space-y-3">
-      <div className="flex justify-between items-center">
-        <h3 className="font-bold text-foreground">Lịch sử phân tích CV</h3>
-        <Button size="sm" asChild>
-          <Link to="/cv-upload"><Plus className="h-3.5 w-3.5 mr-1" />Phân tích CV mới</Link>
-        </Button>
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-black text-[#0F172A]">CV của tôi</h2>
+          <p className="text-xs text-slate-500 mt-0.5">{cvs.length} CV đã phân tích</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Link
+            to="/cv-upload"
+            className="inline-flex items-center justify-center gap-1.5 h-10 px-4 rounded-xl bg-[#EEF2FF] text-[#1549B8] text-sm font-semibold hover:bg-[#E0E7FF] transition-colors"
+          >
+            <FileCheck className="h-4 w-4" />
+            Phân tích CV
+          </Link>
+          <Link
+            to="/cv-builder"
+            className="inline-flex items-center justify-center gap-1.5 h-10 px-4 rounded-xl bg-[#1549B8] text-white text-sm font-semibold hover:bg-[#1240A0] transition-colors"
+          >
+            {draft?.personal?.name ? <FileEdit className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+            {draft?.personal?.name ? 'Mở CV' : 'Tạo CV'}
+          </Link>
+        </div>
       </div>
 
+      {/* Builder draft */}
+      {draft?.personal?.name && (
+        <div className="bg-[#0F172A] rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+          <span className="w-12 h-12 rounded-2xl bg-white/10 text-blue-200 flex items-center justify-center shrink-0">
+            <FileEdit className="h-5 w-5" />
+          </span>
+          <div className="flex-1 min-w-0">
+            <p className="text-[11px] font-bold uppercase tracking-widest text-blue-300">CV đã tạo</p>
+            <p className="text-white font-bold mt-1 truncate">{draft.personal.name}</p>
+            <p className="text-xs text-slate-400 mt-0.5 truncate">
+              {draft.personal.title || 'Chưa có chức danh'}
+            </p>
+          </div>
+          <span className="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-white/10 text-blue-200 shrink-0">
+            Bản nháp
+          </span>
+        </div>
+      )}
+
+      {/* Analyzed CVs */}
       {cvs.length === 0 ? (
-        <EmptyState
-          icon={FileText}
-          title="Bạn chưa phân tích CV nào"
-          description="Tải lên CV để AI phân tích và đánh giá năng lực của bạn"
-          action={
-            <Button asChild>
-              <Link to="/cv-upload"><FileText className="h-4 w-4 mr-2" />Phân tích CV ngay</Link>
-            </Button>
-          }
-        />
+        <div className="bg-white rounded-3xl px-6 py-12 text-center shadow-sm">
+          <div className="w-14 h-14 rounded-2xl bg-[#EEF2FF] flex items-center justify-center mx-auto mb-4">
+            <FileText className="h-6 w-6 text-[#1549B8]" />
+          </div>
+          <p className="font-bold text-[#0F172A]">Chưa có CV</p>
+          <p className="text-sm text-slate-500 mt-1">Tạo CV mới hoặc tải CV để chấm điểm</p>
+        </div>
       ) : (
-        cvs.map(cv => (
-          <Card key={cv._id || cv.id}>
-            <CardContent className="p-4 flex gap-3 items-center">
-              <div className="w-11 h-11 bg-primary/10 rounded-xl flex items-center justify-center shrink-0"><FileText className="h-5 w-5 text-primary" /></div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm truncate">{cv.fileName}</p>
-                <div className="flex items-center gap-2 mt-1 flex-wrap">
-                  <Badge variant={gradeVariant[cv.grade] || 'secondary'} className="text-xs">
-                    Loại {cv.grade || '-'}
-                  </Badge>
-                  {cv.jobTitle && (
-                    <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
-                      Mục tiêu: {cv.jobTitle}
-                    </Badge>
+        <div className="space-y-3">
+          {cvs.map(cv => {
+            const id = cv._id || cv.id
+            return (
+              <div key={id} className="bg-white rounded-2xl p-4 shadow-sm flex flex-col sm:flex-row sm:items-center gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-[#EEF2FF] flex flex-col items-center justify-center shrink-0">
+                  <span className="text-lg font-black text-[#1549B8] leading-none">{cv.overall}</span>
+                  <span className="text-[9px] font-bold text-[#1549B8]/60 mt-0.5">/100</span>
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm text-[#0F172A] truncate">{cv.fileName}</p>
+                  <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-[#EEF2FF] text-[#1549B8]">
+                      Loại {cv.grade || '-'}
+                    </span>
+                    {cv.gradeLabel && (
+                      <span className="text-[11px] px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600">
+                        {cv.gradeLabel}
+                      </span>
+                    )}
+                    {cv.jobTitle && (
+                      <span className="text-[11px] px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600 truncate max-w-45">
+                        {cv.jobTitle}
+                      </span>
+                    )}
+                    {cv.createdAt && (
+                      <span className="text-[11px] text-slate-400">
+                        {new Date(cv.createdAt).toLocaleDateString('vi-VN')}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <button
+                    onClick={() => handleViewCV(cv)}
+                    disabled={detailLoading}
+                    className="inline-flex items-center gap-1.5 h-9 px-3 rounded-xl bg-[#EEF2FF] text-[#1549B8] text-xs font-semibold hover:bg-[#E0E7FF] transition-colors disabled:opacity-50"
+                  >
+                    <Eye className="h-3.5 w-3.5" />Xem
+                  </button>
+
+                  {confirmDeleteId === id ? (
+                    <>
+                      <button
+                        onClick={() => handleDeleteCV(id)}
+                        disabled={deletingId === id}
+                        className="inline-flex items-center gap-1 h-9 px-3 rounded-xl bg-rose-50 text-rose-600 text-xs font-semibold hover:bg-rose-100 transition-colors disabled:opacity-50"
+                      >
+                        {deletingId === id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Xoá'}
+                      </button>
+                      <button
+                        onClick={() => setConfirmDeleteId(null)}
+                        className="h-9 px-2.5 rounded-xl text-xs font-semibold text-slate-500 hover:bg-slate-100 transition-colors"
+                      >
+                        Huỷ
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={() => setConfirmDeleteId(id)}
+                      className="w-9 h-9 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition-colors"
+                      aria-label="Xoá CV"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
                   )}
-                  <span className="text-sm font-bold">{cv.overall}/100</span>
-                  {cv.gradeLabel && (
-                    <span className="text-xs text-muted-foreground">{cv.gradeLabel}</span>
-                  )}
-                  <Separator orientation="vertical" className="h-3" />
-                  <span className="text-xs text-muted-foreground">
-                    {cv.createdAt ? new Date(cv.createdAt).toLocaleDateString('vi-VN') : ''}
-                  </span>
                 </div>
               </div>
-              <div className="flex items-center gap-1.5 shrink-0">
-                <Button variant="outline" size="sm" onClick={() => handleViewCV(cv)} disabled={detailLoading}>
-                  <Eye className="h-3.5 w-3.5 mr-1" />Xem
-                </Button>
-                {confirmDeleteId === (cv._id || cv.id) ? (
-                  <div className="flex items-center gap-1">
-                    <Button
-                      variant="destructive" size="sm"
-                      disabled={deletingId === (cv._id || cv.id)}
-                      onClick={() => handleDeleteCV(cv._id || cv.id)}
-                    >
-                      {deletingId === (cv._id || cv.id)
-                        ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        : 'Xác nhận'}
-                    </Button>
-                    <Button variant="ghost" size="sm" onClick={() => setConfirmDeleteId(null)}>
-                      Hủy
-                    </Button>
-                  </div>
-                ) : (
-                  <Button
-                    variant="ghost" size="sm"
-                    className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                    onClick={() => setConfirmDeleteId(cv._id || cv.id)}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        ))
+            )
+          })}
+        </div>
       )}
 
       {/* Score Detail Modal */}

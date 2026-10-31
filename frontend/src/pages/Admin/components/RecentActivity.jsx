@@ -1,4 +1,4 @@
-import { Clock, TrendingUp, UserPlus, Building2, Shield, Briefcase, Star, Flag, FileText } from 'lucide-react'
+import { Clock, TrendingUp, UserPlus, Building2, Shield, Briefcase, FileCheck, Flag, FileText } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 
@@ -7,7 +7,7 @@ const ACTIVITY_COLORS = {
   new_employer: { bg: '#FFFBEB', text: '#D97706' },
   new_admin:    { bg: '#F0F0FF', text: '#7C3AED' },
   new_job:      { bg: '#ECFDF5', text: '#059669' },
-  cv_score:     { bg: '#F5F3FF', text: '#7C3AED' },
+  cv_score:     { bg: '#EEF2FF', text: '#1549B8' },
   report:       { bg: '#FEF2F2', text: '#DC2626' },
   application:  { bg: '#F0FDF4', text: '#16A34A' },
 }
@@ -17,7 +17,7 @@ const ACTIVITY_ICONS = {
   new_employer: Building2,
   new_admin:    Shield,
   new_job:      Briefcase,
-  cv_score:     Star,
+  cv_score:     FileCheck,
   report:       Flag,
   application:  FileText,
 }
