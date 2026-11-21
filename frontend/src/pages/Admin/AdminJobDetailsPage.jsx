@@ -120,7 +120,7 @@ export default function AdminJobDetailsPage() {
                 </div>
             </div>
             {/* Background decoration */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-20 -mt-20 blur-3xl" />
+
         </div>
 
         <div className="p-8">

@@ -43,7 +43,7 @@ export default function ResetPasswordPage() {
 
   if (!token) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#F8FAFC] to-[#EFF6FF] p-4">
+      <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC] p-4 font-sans">
         <div className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-slate-100 p-8 text-center">
           <div className="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
             <AlertTriangle className="h-8 w-8 text-amber-600" />
@@ -62,7 +62,7 @@ export default function ResetPasswordPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#F8FAFC] to-[#EFF6FF] p-4">
+      <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC] p-4 font-sans">
         <div className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-slate-100 p-8 text-center">
           <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
             <CheckCircle className="h-8 w-8 text-emerald-600" />
@@ -80,7 +80,7 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#F8FAFC] to-[#EFF6FF] p-4">
+    <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC] p-4 font-sans">
       <div className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-slate-100 p-8">
         <div className="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center mb-6">
           <Lock className="h-7 w-7 text-[#1549B8]" />

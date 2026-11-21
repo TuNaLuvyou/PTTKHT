@@ -245,16 +245,16 @@ export default function JobsPage() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-16 font-sans">
       {/* Top Search Banner */}
-      <div className="bg-[#0F172A] text-white pt-10 pb-8 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-[#1549B8]/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="bg-[#0F172A] text-white pt-16 pb-12">
 
-        <div className="container-app relative z-10">
+
+        <div className="container-app">
           <div className="max-w-2xl mb-6">
-            <h1 className="text-2xl sm:text-3xl font-black text-white mb-2 tracking-tight">
-              Khám Phá Việc Làm Phù Hợp
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-2 tracking-tight [text-wrap:balance]">
+              Khám phá việc làm phù hợp
             </h1>
             <p className="text-slate-300 text-sm">
-              Tìm kiếm hơn 12,000+ vị trí tuyển dụng cập nhật liên tục
+              Tìm kiếm các cơ hội nghề nghiệp đạt chuẩn ATS từ các doanh nghiệp uy tín.
             </p>
           </div>
 
@@ -309,7 +309,7 @@ export default function JobsPage() {
               {activeFilterList.map(([key, val]) => (
                 <span
                   key={key}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white text-xs font-medium backdrop-blur-xs"
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800 text-white text-xs font-medium"
                 >
                   <span>{val}</span>
                   <button

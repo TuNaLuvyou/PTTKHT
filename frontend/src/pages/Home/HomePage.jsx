@@ -8,8 +8,7 @@ import {
   FeaturedJobsSection,
 } from "./sections/MainSections";
 import {
-  AIPromoSection,
-  HowItWorksSection,
+  ATSShowcaseSection,
   CTASplitSection,
 } from "./sections/BottomSections";
 
@@ -63,11 +62,11 @@ export default function HomePage() {
     });
 
   return (
-    <div className="w-full overflow-hidden bg-white">
-      {/* 1. Hero: Tìm kiếm & xem trước thẻ điểm ATS */}
+    <div className="w-full bg-white font-sans">
+      {/* 1. Hero: Tìm kiếm & xem trước chẩn đoán ATS */}
       <HeroSection />
 
-      {/* 2. Ngành nghề: Thẻ bo góc mềm mại, hiển thị số lượng */}
+      {/* 2. Ngành nghề: Tinh gọn, typography-first, không icon trong hộp */}
       <CategoriesSection
         categories={categories}
         onCategoryClick={(name) =>
@@ -75,16 +74,13 @@ export default function HomePage() {
         }
       />
 
-      {/* 3. Việc làm mới nhất: JobCard bo góc 2xl, không đường kẻ gạch ngang */}
+      {/* 3. Việc làm mới nhất: JobCard bo góc mềm mại, không đường kẻ */}
       <FeaturedJobsSection jobs={featuredJobs} loading={loadingJobs} />
 
-      {/* 4. Banner ATS AI tinh gọn, không rườm rà chữ */}
-      <AIPromoSection />
+      {/* 4. Đo lường ATS: Editorial showcase, không gradient blob */}
+      <ATSShowcaseSection onCreateCV={handleCreateCV} />
 
-      {/* 5. Quy trình 4 bước đơn giản */}
-      <HowItWorksSection />
-
-      {/* 6. Kêu gọi hành động: Ứng viên & Nhà tuyển dụng */}
+      {/* 5. Kêu gọi hành động: 2 phân hệ chuyên biệt Ứng viên & Nhà tuyển dụng */}
       <CTASplitSection onCreateCV={handleCreateCV} />
     </div>
   );

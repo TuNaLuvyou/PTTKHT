@@ -70,7 +70,7 @@ export function UserDetailDialog({ user, open, onClose, onStatusChange, detailLo
         <>
         {/* User Info Header */}
         <div className="flex gap-5 items-start">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center font-black text-xl text-blue-700 shrink-0 shadow-sm border border-blue-200">
+          <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center font-bold text-xl text-[#1549B8] shrink-0">
             {initials(user.name)}
           </div>
           <div className="flex-1 min-w-0">
@@ -232,7 +232,7 @@ function UserCard({ user, onView, onStatusChange, onDelete }) {
     >
       <div className="flex items-start gap-4">
         {/* Avatar */}
-        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center font-bold text-sm text-blue-700 shrink-0 shadow-sm border border-blue-200">
+        <div className="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center font-bold text-sm text-[#1549B8] shrink-0">
           {initials(user.name)}
         </div>
 

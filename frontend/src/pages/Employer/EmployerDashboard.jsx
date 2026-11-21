@@ -87,7 +87,7 @@ export default function EmployerDashboard() {
               <div key={i} className="flex-1 flex flex-col items-center gap-1">
                 <span className="text-[10px] text-muted-foreground font-semibold">{d.count}</span>
                 <div
-                  className="w-full rounded-t min-h-[4px] transition-all duration-600 ease-out bg-gradient-to-b from-blue-500 to-blue-800"
+                  className="w-full rounded-t min-h-[4px] transition-all duration-600 ease-out bg-[#7C3AED]"
                   style={{
                     height: `${(d.count / maxChart) * 90}px`,
                   }}

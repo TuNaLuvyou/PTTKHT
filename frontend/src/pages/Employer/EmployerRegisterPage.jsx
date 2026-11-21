@@ -158,17 +158,14 @@ export default function EmployerRegisterPage() {
       <div className="max-w-6xl mx-auto">
         {/* Page Header */}
         <div className="mb-8">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-purple-50 text-[#7C3AED] text-xs font-bold mb-2.5">
-            <Building2 className="h-3.5 w-3.5" />
-            <span>Cổng Nhà Tuyển Dụng</span>
-          </div>
+
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
                 Tạo tài khoản tuyển dụng
               </h1>
               <p className="text-sm text-slate-500 mt-1">
-                Tiếp cận 50,000+ nhân tài và tự động đối soát ứng viên bằng AI.
+                Đăng tin và tự động đối soát ứng viên theo tiêu chuẩn ATS.
               </p>
             </div>
             <p className="text-xs text-slate-500">
