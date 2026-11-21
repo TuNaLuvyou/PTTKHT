@@ -43,11 +43,11 @@ export default function AdminLoginPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#0F172A] flex items-center justify-center p-6">
+        <div className="min-h-screen bg-[#0F172A] flex items-center justify-center p-6 font-sans">
             {/* Background decoration */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-[#1549B8]/10 rounded-full blur-3xl" />
-                <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-violet-600/10 rounded-full blur-3xl" />
+
+
                 {/* Grid dots */}
                 <svg className="absolute inset-0 w-full h-full opacity-5" xmlns="http://www.w3.org/2000/svg">
                     <defs>
@@ -64,7 +64,7 @@ export default function AdminLoginPage() {
                 <div className="bg-[#1E293B] border border-white/10 rounded-2xl shadow-2xl p-8">
                     {/* Header */}
                     <div className="text-center mb-8">
-                        <div className="w-16 h-16 bg-gradient-to-br from-[#1549B8] to-[#7C3AED] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                        <div className="w-14 h-14 bg-[#1549B8] rounded-2xl flex items-center justify-center mx-auto mb-4">
                             <Shield className="h-8 w-8 text-white" />
                         </div>
                         <h1 className="text-2xl font-black text-white mb-1">Admin Portal</h1>
@@ -116,7 +116,7 @@ export default function AdminLoginPage() {
 
                         <Button
                             type="submit" disabled={loading}
-                            className="w-full h-11 bg-gradient-to-r from-[#1549B8] to-[#7C3AED] hover:opacity-90 text-white font-bold text-sm mt-2"
+                            className="w-full h-11 bg-[#1549B8] hover:bg-[#1240A0] text-white font-semibold text-sm rounded-xl mt-2"
                         >
                             {loading ? <><Loader2 className="h-4 w-4 animate-spin" />Đang xác thực...</> : <><Shield className="h-4 w-4" />Đăng nhập Admin</>}
                         </Button>

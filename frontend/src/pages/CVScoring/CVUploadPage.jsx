@@ -103,7 +103,7 @@ function ScoreResult({ result, onReset }) {
       <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Overall Score Card (Sticky) */}
         <div className="lg:col-span-5 space-y-4 lg:sticky lg:top-24">
-          <div className="rounded-3xl bg-linear-to-br from-[#0F172A] via-[#1E3A8A] to-[#1549B8] p-7 text-white shadow-xl flex flex-col items-center text-center">
+          <div className="rounded-3xl bg-[#0F172A] p-7 text-white shadow-xl flex flex-col items-center text-center">
             <div className="mb-4">
               <ScoreRing score={result.overall} size={135} />
             </div>
@@ -471,10 +471,10 @@ export default function CVUploadPage() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-16 font-sans">
       {/* Top Banner - Candidate Blue Theme */}
-      <div className="bg-[#0F172A] text-white pt-10 pb-8 relative overflow-hidden mb-8">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-[#1549B8]/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="bg-[#0F172A] text-white pt-16 pb-14 mb-10">
 
-        <div className="container-app relative z-10 text-center">
+
+        <div className="container-app text-center">
           <h1 className="text-2xl sm:text-4xl font-black text-white mb-2 tracking-tight">
             {jobId ? "Độ tương thích CV & Công việc" : "Chấm điểm CV chuẩn ATS"}
           </h1>

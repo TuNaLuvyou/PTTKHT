@@ -50,15 +50,15 @@ export default function CandidateLoginPage() {
   return (
     <div className="min-h-screen flex bg-slate-50 font-sans">
       {/* Left panel: Brand hero (desktop only) */}
-      <div className="hidden lg:flex lg:w-5/12 xl:w-1/2 bg-linear-to-br from-[#0F172A] via-[#1E3A8A] to-[#1549B8] flex-col justify-center p-12 xl:p-16 relative overflow-hidden text-white">
+      <div className="hidden lg:flex lg:w-5/12 xl:w-1/2 bg-[#0F172A] flex-col justify-center p-12 xl:p-16 text-white">
         {/* Ambient lighting effects */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-violet-600/20 rounded-full blur-3xl pointer-events-none" />
+
+
 
         {/* Center content */}
         <div className="relative z-10 max-w-lg">
           <h2 className="text-3xl xl:text-4xl font-black text-white leading-tight mb-3">
-            Chào mừng trở lại 👋
+            Chào mừng trở lại
           </h2>
           <p className="text-slate-300 text-sm leading-relaxed mb-6">
             Đăng nhập để tối ưu CV và khám phá các vị trí tuyển dụng mới.
@@ -68,7 +68,7 @@ export default function CandidateLoginPage() {
             {[
               "Chấm điểm độ tương thích CV với JD theo chuẩn ATS",
               "Tạo CV trực quan, tải về định dạng PDF sắc nét",
-              "Kết nối hơn 12,000+ công việc chất lượng cao",
+              "Kết nối các cơ hội việc làm chất lượng cao",
             ].map((text, idx) => (
               <div key={idx} className="flex items-center gap-3">
                 <div className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">

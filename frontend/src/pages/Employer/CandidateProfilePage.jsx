@@ -57,7 +57,7 @@ export default function CandidateProfilePage() {
       <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
         {/* Header */}
         <div className="flex items-center gap-4 pb-6 border-b border-slate-100 flex-wrap">
-          <div className="size-16 rounded-full bg-gradient-to-br from-blue-800 to-violet-700 flex items-center justify-center text-white font-black text-xl shrink-0">
+          <div className="size-16 rounded-full bg-[#7C3AED] flex items-center justify-center text-white font-black text-xl shrink-0">
             {initials}
           </div>
           <div className="flex-1 min-w-0">

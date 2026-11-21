@@ -62,7 +62,7 @@ export default function ApplicantCard({ app, onStatusChange, onScore, isSelected
         <button
           type="button"
           onClick={() => seekerId && navigate(`/candidates/${seekerId}`)}
-          className="size-11 rounded-full shrink-0 flex items-center justify-center text-white font-extrabold text-[15px] bg-linear-to-br from-blue-800 to-violet-700 cursor-pointer hover:scale-105 transition-transform border-none"
+          className="size-11 rounded-full shrink-0 flex items-center justify-center text-white font-extrabold text-[15px] bg-[#7C3AED] cursor-pointer hover:scale-105 transition-transform border-none"
           title="Xem hồ sơ ứng viên"
         >
           {initials}
@@ -117,9 +117,9 @@ export default function ApplicantCard({ app, onStatusChange, onScore, isSelected
             <button
               onClick={() => handleStatus(cfg.next)}
               disabled={updating}
-              className="px-2.5 sm:px-3.5 py-1.75 rounded-lg border-none text-white cursor-pointer text-[11px] sm:text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-linear-to-br from-blue-800 to-blue-500"
+              className="px-2.5 sm:px-3.5 py-1.75 rounded-lg border-none text-white cursor-pointer text-[11px] sm:text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-[#7C3AED] hover:bg-[#6D28D9]"
             >
-              → {STATUS_CONFIG[cfg.next]?.label}
+              {STATUS_CONFIG[cfg.next]?.label}
             </button>
           )}
 

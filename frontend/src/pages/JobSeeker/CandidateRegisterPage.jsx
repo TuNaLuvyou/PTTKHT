@@ -125,10 +125,10 @@ export default function CandidateRegisterPage() {
   return (
     <div className="min-h-screen flex bg-slate-50 font-sans">
       {/* Left panel: Brand hero (desktop only) */}
-      <div className="hidden lg:flex lg:w-5/12 xl:w-1/2 bg-linear-to-br from-[#0F172A] via-[#1E3A8A] to-[#1549B8] flex-col justify-center p-12 xl:p-16 relative overflow-hidden text-white">
+      <div className="hidden lg:flex lg:w-5/12 xl:w-1/2 bg-[#0F172A] flex-col justify-center p-12 xl:p-16 text-white">
         {/* Ambient lighting effects */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-violet-600/20 rounded-full blur-3xl pointer-events-none" />
+
+
 
         {/* Center content */}
         <div className="relative z-10 max-w-lg">

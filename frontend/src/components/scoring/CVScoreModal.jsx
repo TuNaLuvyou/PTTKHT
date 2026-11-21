@@ -137,7 +137,7 @@ export default function CVScoreModal({ open, onClose, result, onReset }) {
         {/* ── Scrollable content area ── */}
         <div className="overflow-y-auto flex-1 bg-muted/30">
           {/* ═══ Top Hero Section ═══ */}
-          <div className="bg-linear-to-br from-slate-900 to-primary p-6 md:p-8 flex flex-col md:flex-row items-center md:items-start gap-6 text-white shrink-0 shadow-inner">
+          <div className="bg-[#0F172A] p-6 md:p-8 flex flex-col md:flex-row items-center md:items-start gap-6 text-white shrink-0">
             <div className="shrink-0 relative">
               <ScoreRing score={score} size={130} />
             </div>

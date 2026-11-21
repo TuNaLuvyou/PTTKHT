@@ -39,7 +39,7 @@ export default function ForgotPasswordPage() {
   // ── Email không tồn tại ──
   if (notFound) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-[#F8FAFC] to-[#EFF6FF] p-4">
+      <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC] p-4 font-sans">
         <div className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-slate-100 p-8 text-center">
           <div className="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
             <Frown className="h-8 w-8 text-amber-600" />
@@ -66,7 +66,7 @@ export default function ForgotPasswordPage() {
   // ── Đã gửi email thành công ──
   if (result) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-[#F8FAFC] to-[#EFF6FF] p-4">
+      <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC] p-4 font-sans">
         <div className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-slate-100 p-8 text-center">
           <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
             <CheckCircle className="h-8 w-8 text-emerald-600" />
@@ -89,7 +89,7 @@ export default function ForgotPasswordPage() {
 
   // ── Form nhập email ──
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-[#F8FAFC] to-[#EFF6FF] p-4">
+    <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC] p-4 font-sans">
       <div className="w-full max-w-md">
         <Link to="/login" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 mb-8">
           <ArrowLeft size={16} /> Quay lại đăng nhập
